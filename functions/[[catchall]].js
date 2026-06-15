@@ -219,7 +219,8 @@ async function sheetsAppend(token, sheetId, values) {
 // GOOGLE DRIVE
 // ═══════════════════════════════════════════════════════════
 async function driveCreateFolder(token, parentId, name) {
-  const res = await fetch('https://www.googleapis.com/drive/v3/files', {
+  // supportsAllDrives=true wajib untuk Shared Drive / Team Drive
+  const res = await fetch('https://www.googleapis.com/drive/v3/files?supportsAllDrives=true', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] }),
@@ -233,7 +234,7 @@ async function driveCreateFolder(token, parentId, name) {
 async function driveResumableUpload(token, folderId, filename, mimeType, file) {
   // Step 1: Initiate — dapatkan upload session URI
   const initRes = await fetch(
-    'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id',
+    'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id&supportsAllDrives=true',
     {
       method: 'POST',
       headers: {
@@ -265,7 +266,7 @@ async function driveResumableUpload(token, folderId, filename, mimeType, file) {
   const { id } = JSON.parse(uploadTxt);
 
   // Step 3: Set public permission
-  const permRes = await fetch(`https://www.googleapis.com/drive/v3/files/${id}/permissions`, {
+  const permRes = await fetch(`https://www.googleapis.com/drive/v3/files/${id}/permissions?supportsAllDrives=true`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ role: 'reader', type: 'anyone' }),
