@@ -79,7 +79,8 @@ async function handleSubmit(request, env) {
 
   // Upload media — resumable agar tidak timeout
   const mediaDriveId = await driveResumableUpload(token, folderId, mediaName, mediaMime, mediaFile);
-  const mediaUrl     = driveViewUrl(mediaDriveId);
+  // Foto: pakai thumbnail (embed langsung). Video: pakai preview player iframe Google Drive
+  const mediaUrl     = isPhoto ? driveViewUrl(mediaDriveId) : drivePreviewUrl(mediaDriveId);
 
   // Upload voice note (opsional)
   let vnUrl = '', vnDriveId = '';
@@ -276,9 +277,17 @@ async function driveResumableUpload(token, folderId, filename, mimeType, file) {
   return id;
 }
 
+// Thumbnail untuk embed di <img> — bekerja tanpa CORS block
+// Video tidak bisa di-embed via Drive, pakai iframe preview player
 function driveViewUrl(id) {
   if (!id) return '';
-  return `https://drive.google.com/uc?export=view&id=${id}`;
+  return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+}
+
+// URL preview player untuk video (dipakai di play modal)
+function drivePreviewUrl(id) {
+  if (!id) return '';
+  return `https://drive.google.com/file/d/${id}/preview`;
 }
 
 // ═══════════════════════════════════════════════════════════
