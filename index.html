@@ -1429,12 +1429,22 @@ function renderGallery() {
     card.dataset.idx = i;
 
     const thumbSrc = e.serverUrl || e.localUrl;
-
-    // FIX: Cek type dengan benar — foto dari server juga harus pakai <img>
     const isPhoto  = e.type === 'photo';
-    const thumbEl  = isPhoto
-      ? `<img src="${thumbSrc}" loading="lazy" onerror="this.style.opacity='0.3'">`
-      : `<video src="${thumbSrc}" preload="metadata" muted playsinline onerror="this.style.opacity='0.3'"></video>`;
+
+    // Untuk thumbnail gallery: selalu pakai <img>
+    // - Foto: thumbnail Drive langsung (sz=w800)
+    // - Video: thumbnail Drive juga (Drive generate thumbnail dari frame video)
+    // - Local blob (sebelum upload): foto pakai <img>, video pakai poster hitam
+    const isLocalBlob = thumbSrc && thumbSrc.startsWith('blob:');
+    let thumbEl;
+    if (isLocalBlob && !isPhoto) {
+      // Video lokal sebelum upload — tampilkan placeholder gelap dengan icon
+      thumbEl = `<div style="width:100%;height:100%;background:#111;display:flex;align-items:center;justify-content:center;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="rgba(255,255,255,0.3)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </div>`;
+    } else {
+      thumbEl = `<img src="${thumbSrc}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.opacity='0.3'">`;
+    }
 
     card.innerHTML = `
       <div class="g-thumb">
@@ -1520,23 +1530,44 @@ function openPlayModal(idx) {
   const vid = document.getElementById('play-video');
   const src = e.serverUrl || e.localUrl;
 
+  const wrap = document.querySelector('.play-video-wrap');
+
+  // Hapus iframe lama jika ada
+  const oldIframe = document.getElementById('play-iframe');
+  if (oldIframe) oldIframe.remove();
+
   if (e.type === 'photo') {
+    // FOTO: tampilkan <img>
     vid.style.display = 'none';
     let img = document.getElementById('play-photo-img');
     if (!img) {
       img = document.createElement('img');
       img.id = 'play-photo-img';
       img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-      document.querySelector('.play-video-wrap').insertBefore(img, vid);
+      wrap.insertBefore(img, vid);
     }
     img.src = src;
     img.style.display = 'block';
-  } else {
+  } else if (src && src.startsWith('blob:')) {
+    // VIDEO LOKAL (belum upload ke Drive) — pakai <video> biasa
     const img = document.getElementById('play-photo-img');
     if (img) img.style.display = 'none';
     vid.style.display = 'block';
     vid.src = src;
     vid.play().catch(() => {});
+  } else {
+    // VIDEO dari Google Drive — pakai <iframe> embed player
+    const img = document.getElementById('play-photo-img');
+    if (img) img.style.display = 'none';
+    vid.style.display = 'none';
+    // Ekstrak file ID dari preview URL: https://drive.google.com/file/d/FILE_ID/preview
+    const iframe = document.createElement('iframe');
+    iframe.id = 'play-iframe';
+    iframe.src = src; // src sudah berupa preview URL dari server
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+    iframe.allow = 'autoplay';
+    iframe.allowFullscreen = true;
+    wrap.appendChild(iframe);
   }
 
   const vnBtn = document.getElementById('btn-play-vn');
@@ -1549,6 +1580,9 @@ function closePlayModal() {
   const vid = document.getElementById('play-video');
   vid.pause(); vid.src = '';
   document.getElementById('vn-audio').pause();
+  // Hapus iframe Drive agar video berhenti
+  const iframe = document.getElementById('play-iframe');
+  if (iframe) iframe.remove();
 }
 
 function handlePlayModalClick(e) {
