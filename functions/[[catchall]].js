@@ -2,9 +2,10 @@
  * functions/[[catchall]].js
  * Wedding Video Booth — Cloudflare Pages Function
  *
- * FIX 405: Export onRequestGet + onRequestPost secara eksplisit
- *   Cloudflare Pages Functions memerlukan named export per HTTP method.
- *   onRequest() generik TIDAK menangkap POST di semua deployment config.
+ * FIXES:
+ * 1. Tambah `next()` passthrough agar index.html ter-serve oleh Cloudflare static assets
+ * 2. Export onRequestGet + onRequestPost + onRequestOptions secara eksplisit
+ * 3. Destruktur `next` dari ctx agar bisa dipanggil untuk non-API routes
  *
  * Google Sheet tab "Entries" — baris 1 header:
  *   A:timestamp  B:name  C:message  D:media_url  E:vn_url  F:drive_id  G:vn_drive_id  H:media_type
@@ -17,7 +18,8 @@
  */
 
 // ── Shared dispatcher ────────────────────────────────────────────────────────
-async function dispatch({ request, env }) {
+// FIX: Destruktur `next` dari ctx — diperlukan agar static assets (index.html) bisa di-serve
+async function dispatch({ request, env, next }) {
   const { pathname } = new URL(request.url);
   const method = request.method;
 
@@ -26,7 +28,10 @@ async function dispatch({ request, env }) {
     if (pathname === '/api/submit'  && method === 'POST') return await handleSubmit(request, env);
     if (pathname === '/api/gallery' && method === 'GET')  return await handleGallery(env);
     if (pathname === '/api/debug'   && method === 'GET')  return await handleDebug(env);
-    return new Response('Not found', { status: 404 });
+
+    // FIX: Semua request non-API (termasuk "/") di-pass ke Cloudflare static asset handler
+    // Ini yang membuat index.html ter-serve dengan benar
+    return next();
   } catch (err) {
     console.error('[dispatch]', err);
     return jsonRes({ ok: false, error: err.message, trace: err.stack?.slice(0, 400) }, 500);
@@ -132,12 +137,12 @@ async function handleGallery(env) {
 async function handleDebug(env) {
   const r = {
     ts: new Date().toISOString(),
-    env_email: !!env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    env_key:   !!env.GOOGLE_PRIVATE_KEY,
-    env_folder:!!env.GOOGLE_DRIVE_FOLDER_ID,
-    env_sheet: !!env.GOOGLE_SHEET_ID,
-    sheet_id:  env.GOOGLE_SHEET_ID || '(not set)',
-    folder_id: env.GOOGLE_DRIVE_FOLDER_ID || '(not set)',
+    env_email:  !!env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    env_key:    !!env.GOOGLE_PRIVATE_KEY,
+    env_folder: !!env.GOOGLE_DRIVE_FOLDER_ID,
+    env_sheet:  !!env.GOOGLE_SHEET_ID,
+    sheet_id:   env.GOOGLE_SHEET_ID   || '(not set)',
+    folder_id:  env.GOOGLE_DRIVE_FOLDER_ID || '(not set)',
   };
   try {
     const t = await googleToken(env);
@@ -164,8 +169,8 @@ async function googleToken(env) {
   const scope = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets';
   const now   = Math.floor(Date.now() / 1000);
 
-  const hdr = b64u(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
-  const cla = b64u(JSON.stringify({ iss: email, scope, aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 }));
+  const hdr     = b64u(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const cla     = b64u(JSON.stringify({ iss: email, scope, aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 }));
   const signing = `${hdr}.${cla}`;
   const key     = await importRsa(pem);
   const sig     = await crypto.subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, key, te(signing));
@@ -194,12 +199,11 @@ async function sheetsRead(token, sheetId, range) {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   const txt = await res.text();
-  if (!res.ok) throw new Error(`Sheets read ${res.status}: ${txt.slice(0,200)}`);
+  if (!res.ok) throw new Error(`Sheets read ${res.status}: ${txt.slice(0, 200)}`);
   return JSON.parse(txt);
 }
 
 async function sheetsAppend(token, sheetId, values) {
-  // Range literal — JANGAN encodeURIComponent(':' dan '!')
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Entries!A:H:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
   const res = await fetch(url, {
     method: 'POST',
@@ -207,7 +211,7 @@ async function sheetsAppend(token, sheetId, values) {
     body: JSON.stringify({ values: [values] }),
   });
   const txt = await res.text();
-  if (!res.ok) throw new Error(`Sheets append ${res.status}: ${txt.slice(0,200)}`);
+  if (!res.ok) throw new Error(`Sheets append ${res.status}: ${txt.slice(0, 200)}`);
   return JSON.parse(txt);
 }
 
@@ -221,7 +225,7 @@ async function driveCreateFolder(token, parentId, name) {
     body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] }),
   });
   const txt = await res.text();
-  if (!res.ok) throw new Error(`Drive mkdir ${res.status}: ${txt.slice(0,200)}`);
+  if (!res.ok) throw new Error(`Drive mkdir ${res.status}: ${txt.slice(0, 200)}`);
   return JSON.parse(txt).id;
 }
 
@@ -243,7 +247,7 @@ async function driveResumableUpload(token, folderId, filename, mimeType, file) {
   );
   if (!initRes.ok) {
     const t = await initRes.text();
-    throw new Error(`Drive init ${initRes.status}: ${t.slice(0,200)}`);
+    throw new Error(`Drive init ${initRes.status}: ${t.slice(0, 200)}`);
   }
   const uploadUrl = initRes.headers.get('Location');
   if (!uploadUrl) throw new Error('Drive: Location header kosong setelah initiate');
@@ -257,7 +261,7 @@ async function driveResumableUpload(token, folderId, filename, mimeType, file) {
     duplex: 'half',
   });
   const uploadTxt = await uploadRes.text();
-  if (!uploadRes.ok) throw new Error(`Drive upload ${uploadRes.status}: ${uploadTxt.slice(0,200)}`);
+  if (!uploadRes.ok) throw new Error(`Drive upload ${uploadRes.status}: ${uploadTxt.slice(0, 200)}`);
   const { id } = JSON.parse(uploadTxt);
 
   // Step 3: Set public permission
@@ -295,6 +299,6 @@ function jsonRes(data, status = 200) {
     headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
   });
 }
-function b64u(s) { return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+function b64u(s)    { return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
 function b64uBuf(b) { return btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
-function te(s) { return new TextEncoder().encode(s); }
+function te(s)      { return new TextEncoder().encode(s); }
