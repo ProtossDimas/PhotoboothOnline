@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Wedding of Dimas & Nia — Video Booth</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --cream: #FAF7F2;
+  --cream-deep: #F0EBE1;
+  --gold: #C9A96E;
+  --gold-light: #E8D5A8;
+  --gold-dark: #9B7A45;
+  --rose: #B05070;
+  --rose-light: #F5E6EC;
+  --rose-dark: #7A3050;
+  --ink: #1E130A;
+  --ink-muted: #6B5A4E;
+  --ink-faint: #C4B5A8;
+  --white: #FFFFFF;
+  --success: #3D7A5A;
+  --error: #A03030;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+.site-header {
+  background: var(--ink);
+  border-bottom: 1px solid rgba(201,169,110,0.25);
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.header-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  opacity: 0.7;
+  margin-bottom: 2px;
+}
+.header-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2px;
+}
+.ornament-line {
+  height: 1px;
+  width: 44px;
+  background: linear-gradient(to right, transparent, var(--gold));
+}
+.ornament-line.r { background: linear-gradient(to left, transparent, var(--gold)); }
+.ornament-dot { color: var(--gold); font-size: 0.45rem; letter-spacing: 4px; }
+.logo-main {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.8rem;
+  color: var(--white);
+  line-height: 1.1;
+}
+.logo-main .amp { color: var(--gold); }
+.header-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.65rem;
+  font-style: italic;
+  color: var(--gold-light);
+  letter-spacing: 0.14em;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════════
+   GALLERY — full-width layout
+══════════════════════════════════════ */
+.app-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gallery-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gallery-header {
+  padding: 0.875rem 1.25rem 0.625rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.gallery-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--gold-light);
+}
+.gallery-count {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.gallery-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.875rem;
+  /* Portrait grid — 3 columns on desktop, 2 on mobile */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: max-content;
+  gap: 0.75rem;
+  align-content: start;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,169,110,0.3) transparent;
+}
+.gallery-scroll::-webkit-scrollbar { width: 4px; }
+.gallery-scroll::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.3); border-radius: 4px; }
+
+/* Empty state */
+.gallery-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 2rem;
+  color: var(--ink-faint);
+  text-align: center;
+}
+.gallery-empty svg { width: 44px; height: 44px; opacity: 0.35; }
+.gallery-empty p { font-size: 0.82rem; line-height: 1.5; opacity: 0.7; }
+
+/* Gallery card — PORTRAIT 9:16 */
+.g-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+  position: relative;
+}
+.g-card:hover { transform: translateY(-3px); border-color: rgba(201,169,110,0.35); }
+
+.g-thumb {
+  aspect-ratio: 9/16;
+  background: #0a0705;
+  position: relative;
+  overflow: hidden;
+}
+.g-thumb video, .g-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.g-play {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.g-card:hover .g-play, .g-card:active .g-play { opacity: 1; }
+.g-play svg { width: 40px; height: 40px; color: white; filter: drop-shadow(0 2px 10px rgba(0,0,0,0.6)); }
+
+/* Overlay gradient + name on card */
+.g-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%);
+  padding: 2.5rem 0.75rem 0.75rem;
+}
+.g-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.g-meta {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.5);
+  display: flex; align-items: center; gap: 4px;
+}
+.g-vn-dot {
+  display: inline-flex; align-items: center; gap: 2px;
+  background: rgba(201,169,110,0.2);
+  color: var(--gold-light);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.6rem;
+}
+.g-vn-dot svg { width: 8px; height: 8px; }
+
+/* Uploading spinner overlay */
+.g-uploading {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px;
+  z-index: 5;
+}
+.g-uploading .spin { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.g-uploading span { font-size: 0.65rem; color: var(--gold-light); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════
+   FAB — Floating Action Button
+══════════════════════════════════════ */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 28px rgba(176,80,112,0.5), 0 2px 8px rgba(0,0,0,0.4);
+  z-index: 100;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab:hover { transform: scale(1.08); box-shadow: 0 8px 36px rgba(176,80,112,0.65), 0 3px 12px rgba(0,0,0,0.4); }
+.fab:active { transform: scale(0.95); }
+.fab svg { width: 28px; height: 28px; color: white; transition: transform 0.25s; }
+.fab.open svg { transform: rotate(45deg); }
+/* gold ring pulse */
+.fab::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(201,169,110,0.4);
+  animation: fabPulse 2.5s ease-in-out infinite;
+}
+@keyframes fabPulse { 0%,100%{opacity:0.5;transform:scale(1)} 50%{opacity:0;transform:scale(1.25)} }
+
+/* ══════════════════════════════════════
+   CAMERA MODAL
+══════════════════════════════════════ */
+.camera-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.camera-modal.open { opacity: 1; pointer-events: all; }
+
+.camera-box {
+  /* Portrait 9:16, with max height = viewport */
+  width: min(440px, 100vw);
+  height: min(calc(440px * 16/9), 100dvh);
+  background: #000;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transform: scale(0.96) translateY(12px);
+  transition: transform 0.3s;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,169,110,0.15);
+}
+.camera-modal.open .camera-box { transform: scale(1) translateY(0); }
+
+/* On very small screens, go full-screen */
+@media (max-height: 700px) {
+  .camera-box {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}
+
+.camera-wrap {
+  position: relative;
+  flex: 1;
+  background: #000;
+  overflow: hidden;
+}
+#video-live {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scaleX(-1);
+}
+#video-playback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+
+/* Floral frame overlay */
+.frame-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.frame-overlay svg {
+  width: 100%; height: 100%;
+  position: absolute; inset: 0;
+}
+
+/* Close camera button */
+.camera-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 20;
+  transition: background 0.2s;
+}
+.camera-close:hover { background: rgba(0,0,0,0.8); }
+.camera-close svg { width: 16px; height: 16px; }
+
+/* Rec indicator */
+.rec-badge {
+  position: absolute;
+  top: 14px; left: 14px;
+  background: rgba(0,0,0,0.55);
+  border-radius: 20px;
+  padding: 5px 12px;
+  display: none;
+  align-items: center;
+  gap: 7px;
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+.rec-badge.on { display: flex; }
+.rec-dot { width: 8px; height: 8px; background: #FF4444; border-radius: 50%; animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* Timer ring */
+.timer-ring {
+  position: absolute;
+  top: 14px;
+  /* Pushed left of close button */
+  right: 60px;
+  width: 52px; height: 52px;
+  display: none;
+  z-index: 10;
+}
+.timer-ring.on { display: block; }
+.timer-ring svg { transform: rotate(-90deg); }
+.ring-track { fill:none; stroke:rgba(255,255,255,0.18); stroke-width:4; }
+.ring-fill  { fill:none; stroke:var(--gold-light); stroke-width:4; stroke-linecap:round; transition:stroke-dashoffset 1s linear; }
+.ring-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 0.75rem; font-weight: 700;
+}
+
+/* Countdown overlay */
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 20;
+  display: none;
+}
+.countdown-overlay.on { display: flex; }
+.countdown-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 8rem;
+  font-weight: 300;
+  color: white;
+  text-shadow: 0 0 40px rgba(201,169,110,0.8);
+  animation: countPop 0.9s ease;
+}
+@keyframes countPop { 0%{transform:scale(1.5);opacity:0} 40%{opacity:1} 100%{transform:scale(1)} }
+
+/* Flash effect */
+.flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: white;
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.08s;
+}
+.flash-overlay.flash { opacity: 1; }
+
+/* Camera controls bar */
+.camera-controls {
+  background: rgba(0,0,0,0.92);
+  border-top: 1px solid rgba(201,169,110,0.12);
+  padding: 1rem 1.25rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* Shutter / record button */
+.btn-shutter {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--gold-light);
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, border-color 0.2s;
+  position: relative;
+  flex-shrink: 0;
+}
+.btn-shutter:hover { transform: scale(1.05); border-color: var(--gold); }
+.btn-shutter:active { transform: scale(0.95); }
+.shutter-inner {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: var(--white);
+  transition: background 0.2s, border-radius 0.3s, width 0.3s, height 0.3s;
+}
+.btn-shutter.recording .shutter-inner {
+  background: #FF4444;
+  border-radius: 8px;
+  width: 28px; height: 28px;
+}
+
+/* Mode toggle */
+.mode-toggle {
+  display: flex;
+  background: rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.mode-btn {
+  padding: 7px 13px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 5px;
+}
+.mode-btn svg { width: 14px; height: 14px; }
+.mode-btn.active { background: var(--gold); color: var(--ink); }
+
+/* Retake / flip */
+.btn-icon {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.btn-icon:hover { border-color: var(--gold-light); color: var(--gold-light); }
+.btn-icon svg { width: 18px; height: 18px; }
+.btn-icon.hidden { visibility: hidden; pointer-events: none; }
+
+/* ══════════════════════════════════════
+   NAME PROMPT MODAL
+══════════════════════════════════════ */
+.name-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.name-modal.open { opacity: 1; pointer-events: all; }
+.name-box {
+  background: #1a1108;
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 18px;
+  padding: 2rem 1.75rem;
+  width: 100%; max-width: 380px;
+  transform: translateY(10px);
+  transition: transform 0.25s;
+  text-align: center;
+}
+.name-modal.open .name-box { transform: translateY(0); }
+.name-box-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-style: italic;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+}
+.name-box-sub {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+.name-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  text-align: center;
+  outline: none;
+  margin-bottom: 0.65rem;
+  transition: border-color 0.2s;
+}
+.name-input:focus { border-color: var(--gold); }
+.name-input::placeholder { color: rgba(255,255,255,0.2); }
+.msg-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  text-align: center;
+  outline: none;
+  resize: none;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+.msg-input:focus { border-color: var(--gold); }
+.msg-input::placeholder { color: rgba(255,255,255,0.2); }
+.btn-send {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+  color: white;
+  border: none;
+  border-radius: 11px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 0.6rem;
+}
+.btn-send:hover { opacity: 0.88; }
+.btn-send:active { transform: scale(0.98); }
+.btn-send svg { width: 16px; height: 16px; }
+.btn-retake-modal {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 11px;
+  color: var(--ink-faint);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-retake-modal:hover { border-color: rgba(255,255,255,0.3); color: white; }
+
+/* ══════════════════════════════════════
+   PLAYBACK MODAL (galeri)
+══════════════════════════════════════ */
+.play-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 350;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.play-modal.open { opacity: 1; pointer-events: all; }
+.play-box {
+  background: #1a1108;
+  border: 1px solid rgba(201,169,110,0.25);
+  border-radius: 18px;
+  overflow: hidden;
+  /* Portrait playback */
+  width: min(360px, 90vw);
+  transform: scale(0.96);
+  transition: transform 0.25s;
+}
+.play-modal.open .play-box { transform: scale(1); }
+.play-video-wrap {
+  aspect-ratio: 9/16;
+  background: #000;
+  position: relative;
+  width: 100%;
+}
+.play-video-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.play-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: none; cursor: pointer;
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+  z-index: 5;
+}
+.play-close:hover { background: rgba(0,0,0,0.75); }
+.play-close svg { width: 16px; height: 16px; }
+.play-info {
+  padding: 1rem 1.25rem 1.25rem;
+}
+.play-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+}
+.play-msg { font-size: 0.83rem; color: var(--ink-faint); line-height: 1.55; margin-bottom: 10px; }
+.play-footer { display: flex; align-items: center; justify-content: space-between; }
+.play-date { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
+.btn-play-vn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: rgba(201,169,110,0.12);
+  border: 1px solid rgba(201,169,110,0.2);
+  color: var(--gold-light);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: none; align-items: center; gap: 5px;
+  transition: background 0.2s;
+}
+.btn-play-vn.visible { display: flex; }
+.btn-play-vn:hover { background: rgba(201,169,110,0.22); }
+.btn-play-vn svg { width: 14px; height: 14px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 5.5rem; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: #2a1e14;
+  border: 1px solid rgba(201,169,110,0.2);
+  color: var(--gold-light);
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  z-index: 400;
+  opacity: 0;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.err { background: #2a0e0e; border-color: rgba(160,48,48,0.4); color: #f08080; }
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 680px) {
+  .gallery-scroll {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0.625rem;
+    gap: 0.5rem;
+  }
+  .fab { bottom: 1.5rem; right: 1.5rem; width: 58px; height: 58px; }
+  .fab svg { width: 24px; height: 24px; }
+  .toast { bottom: 5rem; }
+}
+
+@media (min-width: 1200px) {
+  .gallery-scroll {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media (min-width: 900px) and (max-width: 1199px) {
+  .gallery-scroll {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ══════════════════════════════════════
+   CAPTURE CHOICE SHEET
+   Muncul saat FAB ditekan — pilih native cam atau in-browser cam
+══════════════════════════════════════ */
+.choice-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 190;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.choice-modal.open { opacity: 1; pointer-events: all; }
+.choice-sheet {
+  background: #1f1108;
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 22px 22px 0 0;
+  padding: 1rem 1.25rem 2rem;
+  width: 100%; max-width: 480px;
+  transform: translateY(16px); transition: transform 0.25s;
+}
+.choice-modal.open .choice-sheet { transform: translateY(0); }
+.choice-handle {
+  width: 36px; height: 4px;
+  background: rgba(255,255,255,0.13);
+  border-radius: 4px; margin: 0 auto 1rem;
+}
+.choice-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem; font-style: italic;
+  color: var(--gold-light); text-align: center; margin-bottom: 0.25rem;
+}
+.choice-sub {
+  font-size: 0.73rem; color: var(--ink-faint);
+  text-align: center; margin-bottom: 1.1rem;
+}
+.choice-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0.65rem; margin-bottom: 0.75rem;
+}
+.choice-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 13px; padding: 1.1rem 0.75rem;
+  cursor: pointer; color: var(--white);
+  font-family: 'Inter', sans-serif;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  transition: background 0.2s, border-color 0.2s;
+  text-align: center;
+}
+.choice-btn:hover, .choice-btn:active {
+  background: rgba(201,169,110,0.1);
+  border-color: rgba(201,169,110,0.4);
+}
+.choice-btn svg { width: 28px; height: 28px; color: var(--gold-light); }
+.choice-btn .c-label { font-size: 0.86rem; font-weight: 600; }
+.choice-btn .c-sub { font-size: 0.67rem; color: var(--ink-faint); line-height: 1.4; }
+.choice-btn.full { grid-column: 1 / -1; flex-direction: row; gap: 0.85rem; padding: 0.9rem 1rem; }
+.choice-btn.full svg { flex-shrink: 0; }
+.choice-btn.full .c-text { text-align: left; }
+.choice-cancel {
+  width: 100%; padding: 11px;
+  border-radius: 11px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--ink-faint); font-family: 'Inter', sans-serif;
+  font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+}
+.choice-cancel:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+
+/* Hidden native file inputs */
+#native-video-input, #native-photo-input { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <p class="header-eyebrow">Wedding Video Booth</p>
+  <div class="header-ornament">
+    <div class="ornament-line"></div>
+    <span class="ornament-dot">✦ ✦ ✦</span>
+    <div class="ornament-line r"></div>
+  </div>
+  <div class="logo-main">The Wedding of Dimas <span class="amp">&amp;</span> Nia</div>
+  <p class="header-tagline">leaves a moment · treasures a memory</p>
+</header>
+
+<!-- ══ APP BODY ══ -->
+<div class="app-body">
+  <!-- ── GALLERY PANEL (full width) ── -->
+  <div class="gallery-panel">
+    <div class="gallery-header">
+      <div class="gallery-title">Momen Terkini</div>
+      <div class="gallery-count" id="gallery-count">Memuat...</div>
+    </div>
+    <div class="gallery-scroll" id="gallery-scroll">
+      <div class="gallery-empty" id="gallery-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.876v6.248a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/>
+        </svg>
+        <p>Belum ada video.<br>Jadilah yang pertama! 🎉</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FAB — Floating Action Button ══ -->
+<button class="fab" id="fab" onclick="openCaptureChoice()" title="Rekam Momen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+</button>
+
+<!-- ══ CAMERA MODAL ══ -->
+<div class="camera-modal" id="camera-modal">
+  <div class="camera-box">
+    <div class="camera-wrap">
+      <video id="video-live" autoplay muted playsinline></video>
+      <video id="video-playback" playsinline controls></video>
+
+      <!-- Floral frame corner SVG -->
+      <div class="frame-overlay">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- top-left corner -->
+          <g opacity="0.55" fill="none" stroke="#C9A96E" stroke-width="0.5">
+            <path d="M2,18 Q2,2 18,2"/>
+            <path d="M2,12 Q2,2 12,2"/>
+            <circle cx="5" cy="5" r="1.5" fill="#C9A96E" opacity="0.6"/>
+            <path d="M8,2 Q5,5 2,8" stroke-width="0.4"/>
+            <ellipse cx="4" cy="14" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(-30 4 14)"/>
+            <ellipse cx="14" cy="4" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(60 14 4)"/>
+          </g>
+          <!-- top-right corner -->
+          <g opacity="0.55" fill="none" stroke="#C9A96E" stroke-width="0.5">
+            <path d="M98,18 Q98,2 82,2"/>
+            <path d="M98,12 Q98,2 88,2"/>
+            <circle cx="95" cy="5" r="1.5" fill="#C9A96E" opacity="0.6"/>
+            <path d="M92,2 Q95,5 98,8" stroke-width="0.4"/>
+            <ellipse cx="96" cy="14" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(30 96 14)"/>
+            <ellipse cx="86" cy="4" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(-60 86 4)"/>
+          </g>
+          <!-- bottom-left corner -->
+          <g opacity="0.55" fill="none" stroke="#C9A96E" stroke-width="0.5">
+            <path d="M2,82 Q2,98 18,98"/>
+            <path d="M2,88 Q2,98 12,98"/>
+            <circle cx="5" cy="95" r="1.5" fill="#C9A96E" opacity="0.6"/>
+            <path d="M8,98 Q5,95 2,92" stroke-width="0.4"/>
+            <ellipse cx="4" cy="86" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(30 4 86)"/>
+            <ellipse cx="14" cy="96" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(-60 14 96)"/>
+          </g>
+          <!-- bottom-right corner -->
+          <g opacity="0.55" fill="none" stroke="#C9A96E" stroke-width="0.5">
+            <path d="M98,82 Q98,98 82,98"/>
+            <path d="M98,88 Q98,98 88,98"/>
+            <circle cx="95" cy="95" r="1.5" fill="#C9A96E" opacity="0.6"/>
+            <path d="M92,98 Q95,95 98,92" stroke-width="0.4"/>
+            <ellipse cx="96" cy="86" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(-30 96 86)"/>
+            <ellipse cx="86" cy="96" rx="1.5" ry="3" fill="#C9A96E" opacity="0.35" transform="rotate(60 86 96)"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="rec-badge" id="rec-badge"><div class="rec-dot"></div> REC</div>
+      <div class="timer-ring" id="timer-ring">
+        <svg viewBox="0 0 52 52"><circle class="ring-track" cx="26" cy="26" r="22"/><circle class="ring-fill" id="ring-fill" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="138.2"/></svg>
+        <div class="ring-num" id="ring-num">60</div>
+      </div>
+      <div class="countdown-overlay" id="countdown-overlay">
+        <div class="countdown-num" id="countdown-num">3</div>
+      </div>
+      <div class="flash-overlay" id="flash-overlay"></div>
+
+      <!-- Close button inside camera wrap -->
+      <button class="camera-close" onclick="closeCameraModal()" title="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="camera-controls">
+      <!-- flip camera (mobile) -->
+      <button class="btn-icon" id="btn-flip" onclick="flipCamera()" title="Flip kamera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      </button>
+
+      <!-- mode toggle: video / photo -->
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-video" onclick="setMode('video')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.876v6.248a1 1 0 0 1-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
+          Video
+        </button>
+        <button class="mode-btn" id="mode-photo" onclick="setMode('photo')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Foto
+        </button>
+      </div>
+
+      <!-- shutter -->
+      <button class="btn-shutter" id="btn-shutter" onclick="handleShutter()">
+        <div class="shutter-inner" id="shutter-inner"></div>
+      </button>
+
+      <!-- retake -->
+      <button class="btn-icon hidden" id="btn-retake" onclick="retake()" title="Ulangi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAME PROMPT MODAL ══ -->
+<div class="name-modal" id="name-modal">
+  <div class="name-box">
+    <div class="name-box-title">Simpan Momenmu ✨</div>
+    <p class="name-box-sub">Isi nama &amp; pesan singkat untuk Dimas &amp; Nia</p>
+    <input class="name-input" id="input-name" type="text" placeholder="Nama kamu" maxlength="40" autocomplete="off"/>
+    <textarea class="msg-input" id="input-msg" rows="2" placeholder="Pesan singkat (opsional)..."></textarea>
+    <button class="btn-send" onclick="confirmSend()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Kirim ke Galeri
+    </button>
+    <button class="btn-retake-modal" onclick="closeNameModal()">Rekam Ulang</button>
+  </div>
+</div>
+
+<!-- ══ PLAYBACK MODAL ══ -->
+<div class="play-modal" id="play-modal" onclick="handlePlayModalClick(event)">
+  <div class="play-box">
+    <div class="play-video-wrap">
+      <video id="play-video" controls playsinline></video>
+      <button class="play-close" onclick="closePlayModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="play-info">
+      <div class="play-name" id="play-name"></div>
+      <p class="play-msg" id="play-msg"></p>
+      <div class="play-footer">
+        <span class="play-date" id="play-date"></span>
+        <button class="btn-play-vn" id="btn-play-vn" onclick="playVN()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+          Putar Voice Note
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="vn-audio"></audio>
+
+<!-- ══ CAPTURE CHOICE SHEET ══ -->
+<!-- Muncul saat FAB ditekan — user pilih: native cam HP atau in-browser cam -->
+<div class="choice-modal" id="choice-modal" onclick="handleChoiceBackdrop(event)">
+  <div class="choice-sheet">
+    <div class="choice-handle"></div>
+    <div class="choice-title">Abadikan Momen ✨</div>
+    <p class="choice-sub">Pilih cara merekam untuk Dimas &amp; Nia</p>
+    <div class="choice-grid">
+      <!-- Native: buka kamera bawaan HP — zoom normal, kualitas terbaik -->
+      <label class="choice-btn" for="native-video-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.876v6.248a1 1 0 0 1-1.447.894L15 14"/>
+          <rect x="3" y="6" width="12" height="12" rx="2"/>
+        </svg>
+        <span class="c-label">🎬 Video</span>
+        <span class="c-sub">Rekam via kamera HP</span>
+      </label>
+      <label class="choice-btn" for="native-photo-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span class="c-label">📸 Foto</span>
+        <span class="c-sub">Foto via kamera HP</span>
+      </label>
+      <!-- In-browser cam — pakai kamera WebRTC dalam web -->
+      <button class="choice-btn full" onclick="chooseInBrowser()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <path d="M8 21h8M12 17v4"/>
+        </svg>
+        <div class="c-text">
+          <div class="c-label">🌐 Kamera In-Browser</div>
+          <div class="c-sub">Rekam langsung di halaman web ini (ada countdown &amp; floral frame)</div>
+        </div>
+      </button>
+    </div>
+    <button class="choice-cancel" onclick="closeChoiceSheet()">Batal</button>
+  </div>
+</div>
+
+<!-- Native file inputs — trigger kamera bawaan HP (tidak ada zoom issue) -->
+<input type="file" id="native-video-input" accept="video/*" capture="environment">
+<input type="file" id="native-photo-input" accept="image/*" capture="environment">
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+// ── State ─────────────────────────────────────────────────
+let stream       = null;
+let facingMode   = 'user';
+let currentMode  = 'video';
+let isRecording  = false;
+let mediaRec     = null;
+let videoChunks  = [];
+let capturedBlob = null;
+let capturedType = null;
+let recSecs      = 0;
+let recTimer     = null;
+const MAX_SECS   = 60;
+const CIRC       = 2 * Math.PI * 22;
+
+let gallery      = [];
+let currentVNUrl = null;
+let cameraStarted = false;
+
+// ── Init ──────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  loadGalleryFromServer();
+  // Wire native camera inputs
+  document.getElementById('native-video-input').addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (file) { capturedBlob = file; capturedType = 'video'; showPlayback(URL.createObjectURL(file), 'video'); }
+    e.target.value = '';
+    closeChoiceSheet();
+  });
+  document.getElementById('native-photo-input').addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (file) { capturedBlob = file; capturedType = 'photo'; showPlayback(URL.createObjectURL(file), 'photo'); }
+    e.target.value = '';
+    closeChoiceSheet();
+  });
+});
+
+// ── Capture Choice Sheet ───────────────────────────────────
+function openCaptureChoice() {
+  document.getElementById('choice-modal').classList.add('open');
+  document.getElementById('fab').classList.add('open');
+}
+function closeChoiceSheet() {
+  document.getElementById('choice-modal').classList.remove('open');
+  document.getElementById('fab').classList.remove('open');
+}
+function handleChoiceBackdrop(e) {
+  if (e.target === document.getElementById('choice-modal')) closeChoiceSheet();
+}
+function chooseInBrowser() {
+  closeChoiceSheet();
+  openCameraModal();
+}
+
+// ── Camera Modal ──────────────────────────────────────────
+async function openCameraModal() {
+  document.getElementById('camera-modal').classList.add('open');
+  document.getElementById('fab').classList.add('open');
+  if (!cameraStarted) {
+    await startCamera();
+    cameraStarted = true;
+  }
+}
+
+function closeCameraModal() {
+  // Only close if we're not in a capture state
+  if (capturedBlob) {
+    // Already captured — show name modal instead
+    openNameModal();
+    return;
+  }
+  document.getElementById('camera-modal').classList.remove('open');
+  document.getElementById('fab').classList.remove('open');
+}
+
+// ── Camera ────────────────────────────────────────────────
+async function startCamera() {
+  try {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+
+    // Request portrait-friendly resolution — avoid high res that causes crop/zoom
+    const constraints = {
+      video: {
+        facingMode,
+        width:  { ideal: 720, max: 1080 },
+        height: { ideal: 1280, max: 1920 },
+        aspectRatio: { ideal: 9/16 },
+      },
+      audio: true,
+    };
+
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+    // Reset zoom on back camera if browser supports it
+    if (facingMode === 'environment') {
+      const videoTrack = stream.getVideoTracks()[0];
+      if (videoTrack && typeof videoTrack.applyConstraints === 'function') {
+        try {
+          const caps = videoTrack.getCapabilities();
+          // Set zoom to minimum (1x) if supported
+          if (caps.zoom) {
+            await videoTrack.applyConstraints({ advanced: [{ zoom: caps.zoom.min }] });
+          }
+        } catch (_) { /* zoom API not supported on this device, ignore */ }
+      }
+    }
+
+    document.getElementById('video-live').srcObject = stream;
+  } catch (err) {
+    // Fallback: minimal constraints, no aspect ratio
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: true });
+      document.getElementById('video-live').srcObject = stream;
+    } catch {
+      showToast('Akses kamera ditolak. Izinkan di browser.', true);
+    }
+  }
+}
+
+async function flipCamera() {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  // Mirror only front cam
+  document.getElementById('video-live').style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+  await startCamera();
+}
+
+// ── Mode ──────────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-video').classList.toggle('active', mode === 'video');
+  document.getElementById('mode-photo').classList.toggle('active', mode === 'photo');
+  if (isRecording) stopRecording();
+  retake();
+}
+
+// ── Shutter ───────────────────────────────────────────────
+function handleShutter() {
+  if (currentMode === 'video') {
+    isRecording ? stopRecording() : startCountdownThenRecord();
+  } else {
+    takePhoto();
+  }
+}
+
+// ── Photo ─────────────────────────────────────────────────
+function takePhoto() {
+  const video = document.getElementById('video-live');
+  const canvas = document.createElement('canvas');
+
+  // Use portrait resolution
+  const vw = video.videoWidth  || 1080;
+  const vh = video.videoHeight || 1920;
+  canvas.width  = vw;
+  canvas.height = vh;
+
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  if (facingMode === 'user') {
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, -vw, 0, vw, vh);
+  } else {
+    ctx.drawImage(video, 0, 0, vw, vh);
+  }
+  ctx.restore();
+
+  // Flash
+  const flash = document.getElementById('flash-overlay');
+  flash.classList.add('flash');
+  setTimeout(() => flash.classList.remove('flash'), 150);
+
+  canvas.toBlob(blob => {
+    capturedBlob = blob;
+    capturedType = 'photo';
+    showPlayback(URL.createObjectURL(blob), 'photo');
+  }, 'image/jpeg', 0.92);
+}
+
+// ── Video countdown → record ──────────────────────────────
+function startCountdownThenRecord() {
+  let n = 3;
+  const overlay = document.getElementById('countdown-overlay');
+  const numEl   = document.getElementById('countdown-num');
+  overlay.classList.add('on');
+  numEl.textContent = n;
+
+  const iv = setInterval(() => {
+    n--;
+    if (n > 0) {
+      numEl.textContent = n;
+      numEl.style.animation = 'none';
+      void numEl.offsetWidth;
+      numEl.style.animation = '';
+    } else {
+      clearInterval(iv);
+      overlay.classList.remove('on');
+      startRecording();
+    }
+  }, 1000);
+}
+
+function startRecording() {
+  if (!stream) return;
+  videoChunks = [];
+  recSecs     = 0;
+  const mime  = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4']
+                  .find(m => MediaRecorder.isTypeSupported(m)) || '';
+  mediaRec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+  mediaRec.ondataavailable = e => { if (e.data.size > 0) videoChunks.push(e.data); };
+  mediaRec.onstop = () => {
+    capturedBlob = new Blob(videoChunks, { type: mediaRec.mimeType || 'video/webm' });
+    capturedType = 'video';
+    showPlayback(URL.createObjectURL(capturedBlob), 'video');
+  };
+  mediaRec.start(200);
+  isRecording = true;
+
+  document.getElementById('btn-shutter').classList.add('recording');
+  document.getElementById('rec-badge').classList.add('on');
+  document.getElementById('timer-ring').classList.add('on');
+  updateRing(0);
+
+  recTimer = setInterval(() => {
+    recSecs++;
+    updateRing(recSecs);
+    if (recSecs >= MAX_SECS) stopRecording();
+  }, 1000);
+}
+
+function stopRecording() {
+  clearInterval(recTimer);
+  isRecording = false;
+  document.getElementById('btn-shutter').classList.remove('recording');
+  document.getElementById('rec-badge').classList.remove('on');
+  document.getElementById('timer-ring').classList.remove('on');
+  if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop();
+}
+
+function updateRing(s) {
+  const offset = CIRC - (s / MAX_SECS) * CIRC;
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+  document.getElementById('ring-num').textContent = MAX_SECS - s;
+}
+
+// ── Show captured preview ─────────────────────────────────
+function showPlayback(url, type) {
+  const live     = document.getElementById('video-live');
+  const playback = document.getElementById('video-playback');
+  live.style.display = 'none';
+
+  if (type === 'photo') {
+    let img = document.getElementById('photo-preview');
+    if (!img) {
+      img = document.createElement('img');
+      img.id = 'photo-preview';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
+      document.querySelector('.camera-wrap').appendChild(img);
+    }
+    img.src = url;
+    img.style.display = 'block';
+    playback.style.display = 'none';
+  } else {
+    playback.src = url;
+    playback.style.display = 'block';
+    playback.play().catch(() => {});
+    const img = document.getElementById('photo-preview');
+    if (img) img.style.display = 'none';
+  }
+
+  document.getElementById('btn-retake').classList.remove('hidden');
+  document.getElementById('btn-shutter').style.display = 'none';
+  document.getElementById('mode-video').disabled = true;
+  document.getElementById('mode-photo').disabled = true;
+
+  openNameModal();
+}
+
+// ── Retake ────────────────────────────────────────────────
+function retake() {
+  capturedBlob = null;
+  capturedType = null;
+  const playback = document.getElementById('video-playback');
+  playback.pause(); playback.src = ''; playback.style.display = 'none';
+  const img = document.getElementById('photo-preview');
+  if (img) img.style.display = 'none';
+  document.getElementById('video-live').style.display = 'block';
+  document.getElementById('btn-retake').classList.add('hidden');
+  document.getElementById('btn-shutter').style.display = '';
+  document.getElementById('mode-video').disabled = false;
+  document.getElementById('mode-photo').disabled = false;
+  closeNameModal();
+}
+
+// ── Name modal ────────────────────────────────────────────
+function openNameModal() {
+  document.getElementById('name-modal').classList.add('open');
+  setTimeout(() => document.getElementById('input-name').focus(), 300);
+}
+
+function closeNameModal() {
+  document.getElementById('name-modal').classList.remove('open');
+}
+
+async function confirmSend() {
+  const name = document.getElementById('input-name').value.trim();
+  const msg  = document.getElementById('input-msg').value.trim();
+  if (!name) { document.getElementById('input-name').focus(); return; }
+  if (!capturedBlob) return;
+
+  const blobToSend = capturedBlob;
+  const typeToSend = capturedType;
+
+  closeNameModal();
+
+  const id       = Date.now();
+  const ts       = new Date().toISOString();
+  const localUrl = URL.createObjectURL(blobToSend);
+
+  // ① Add to gallery immediately
+  const entry = { id, name, msg, ts, localUrl, type: typeToSend, vnUrl: '', uploading: true };
+  gallery.unshift(entry);
+  renderGallery();
+
+  // ② Close camera + reset
+  document.getElementById('camera-modal').classList.remove('open');
+  document.getElementById('fab').classList.remove('open');
+  retake();
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-msg').value  = '';
+
+  // ③ Upload in background
+  try {
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('message', msg);
+    const filename  = typeToSend === 'video' ? 'video.webm' : 'photo.jpg';
+    const fieldname = typeToSend === 'video' ? 'video' : 'photo';
+    fd.append(fieldname, blobToSend, filename);
+
+    const res  = await fetch('/api/submit', { method: 'POST', body: fd });
+
+    // Safe JSON parse — server may return HTML error page or empty body
+    let data = {};
+    try {
+      const rawText = await res.text();
+      if (rawText && rawText.trim().startsWith('{')) {
+        data = JSON.parse(rawText);
+      } else if (!res.ok) {
+        throw new Error(`Server error ${res.status}: ${rawText.slice(0, 120)}`);
+      }
+    } catch (parseErr) {
+      if (!res.ok) throw parseErr;
+      // If parse fails but status is OK, treat as success with no data
+    }
+
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const idx = gallery.findIndex(e => e.id === id);
+    if (idx >= 0) {
+      gallery[idx].uploading = false;
+      // Baca media_url (field baru) ATAU fallback ke video_url/photo_url (field lama)
+      gallery[idx].serverUrl = data.media_url || data.video_url || data.photo_url || '';
+      gallery[idx].vnUrl     = data.vn_url || '';
+      if (data.media_type) gallery[idx].type = data.media_type;
+      renderGallery();
+    }
+    showToast('Tersimpan! 🎉');
+  } catch (err) {
+    const idx = gallery.findIndex(e => e.id === id);
+    if (idx >= 0) {
+      gallery[idx].uploading = false;
+      gallery[idx].uploadFailed = true;
+      renderGallery();
+    }
+    showToast('Upload gagal: ' + (err.message || 'coba lagi'), true);
+  }
+}
+
+// ── Gallery render ────────────────────────────────────────
+function renderGallery() {
+  const scroll = document.getElementById('gallery-scroll');
+  const empty  = document.getElementById('gallery-empty');
+  const count  = document.getElementById('gallery-count');
+
+  count.textContent = gallery.length + ' momen terekam';
+
+  if (gallery.length === 0) {
+    empty.style.display = 'flex';
+    scroll.querySelectorAll('.g-card').forEach(c => c.remove());
+    return;
+  }
+  empty.style.display = 'none';
+  scroll.querySelectorAll('.g-card').forEach(c => c.remove());
+
+  gallery.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'g-card';
+    card.dataset.idx = i;
+
+    const thumbSrc = e.serverUrl || e.localUrl;
+
+    // FIX: Cek type dengan benar — foto dari server juga harus pakai <img>
+    const isPhoto  = e.type === 'photo';
+    const thumbEl  = isPhoto
+      ? `<img src="${thumbSrc}" loading="lazy" onerror="this.style.opacity='0.3'">`
+      : `<video src="${thumbSrc}" preload="metadata" muted playsinline onerror="this.style.opacity='0.3'"></video>`;
+
+    card.innerHTML = `
+      <div class="g-thumb">
+        ${thumbEl}
+        <div class="g-play">
+          ${isPhoto
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`
+            : `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`
+          }
+        </div>
+        ${e.uploading ? `<div class="g-uploading"><div class="spin"></div><span>Mengunggah...</span></div>` : ''}
+        <div class="g-overlay">
+          <div class="g-name">${escHtml(e.name)}</div>
+          <div class="g-meta">
+            ${fmtDate(e.ts)}
+            ${e.vnUrl ? `<span class="g-vn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/></svg>VN</span>` : ''}
+            ${e.uploadFailed ? '<span style="color:#f08080">⚠ Gagal upload</span>' : ''}
+          </div>
+        </div>
+      </div>`;
+
+    card.addEventListener('click', () => openPlayModal(i));
+    scroll.appendChild(card);
+  });
+}
+
+// ── Load gallery from server ──────────────────────────────
+async function loadGalleryFromServer() {
+  try {
+    const res = await fetch('/api/gallery');
+
+    // Safe JSON parse
+    let data = {};
+    try {
+      const rawText = await res.text();
+      if (rawText && rawText.trim().startsWith('{')) {
+        data = JSON.parse(rawText);
+      }
+    } catch (_) {}
+
+    if (!res.ok || data.error) {
+      console.error('[Gallery] API error:', data.error || res.status);
+      document.getElementById('gallery-count').textContent = 'Gagal memuat — ' + (data.error || 'coba refresh');
+      renderGallery();
+      return;
+    }
+
+    const serverEntries = (data.entries || []).map(e => ({
+      // FIX: Gunakan timestamp sebagai ID unik — bukan indeks array yang berubah tiap load
+      id:        'srv_' + e.timestamp,
+      name:      e.name,
+      msg:       e.message,
+      ts:        e.timestamp,
+      localUrl:  e.video_url,
+      serverUrl: e.video_url,
+      // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
+      type:      e.media_type || 'video',
+      vnUrl:     e.vn_url || '',
+      driveId:   e.drive_id || '',
+      uploading: false,
+    }));
+
+    // Pertahankan entry local yang masih uploading, gabungkan dgn server
+    const localUploading = gallery.filter(e => e.uploading);
+    const localIds = new Set(localUploading.map(e => e.id));
+    const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
+    gallery = [...localUploading, ...srvDeduped];
+    renderGallery();
+  } catch (err) {
+    console.error('[Gallery] fetch error:', err);
+    renderGallery();
+  }
+}
+
+// ── Playback modal ────────────────────────────────────────
+function openPlayModal(idx) {
+  const e = gallery[idx];
+  if (!e || e.uploading) return;
+  currentVNUrl = e.vnUrl || null;
+  document.getElementById('play-name').textContent = e.name;
+  document.getElementById('play-msg').textContent  = e.msg || 'Tidak ada pesan tertulis.';
+  document.getElementById('play-date').textContent = fmtDate(e.ts);
+  const vid = document.getElementById('play-video');
+  const src = e.serverUrl || e.localUrl;
+
+  if (e.type === 'photo') {
+    vid.style.display = 'none';
+    let img = document.getElementById('play-photo-img');
+    if (!img) {
+      img = document.createElement('img');
+      img.id = 'play-photo-img';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+      document.querySelector('.play-video-wrap').insertBefore(img, vid);
+    }
+    img.src = src;
+    img.style.display = 'block';
+  } else {
+    const img = document.getElementById('play-photo-img');
+    if (img) img.style.display = 'none';
+    vid.style.display = 'block';
+    vid.src = src;
+    vid.play().catch(() => {});
+  }
+
+  const vnBtn = document.getElementById('btn-play-vn');
+  currentVNUrl ? vnBtn.classList.add('visible') : vnBtn.classList.remove('visible');
+  document.getElementById('play-modal').classList.add('open');
+}
+
+function closePlayModal() {
+  document.getElementById('play-modal').classList.remove('open');
+  const vid = document.getElementById('play-video');
+  vid.pause(); vid.src = '';
+  document.getElementById('vn-audio').pause();
+}
+
+function handlePlayModalClick(e) {
+  if (e.target === document.getElementById('play-modal')) closePlayModal();
+}
+
+function playVN() {
+  if (!currentVNUrl) return;
+  const a = document.getElementById('vn-audio');
+  a.src = currentVNUrl;
+  a.play();
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(ts) {
+  if (!ts) return '–';
+  return new Date(ts).toLocaleString('id-ID', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+function showToast(msg, err = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show' + (err ? ' err' : '');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.className = 'toast', 3200);
+}
+</script>
+</body>
+</html>
