@@ -802,6 +802,121 @@ body {
 
 /* Hidden native file inputs */
 #native-video-input, #native-photo-input { display: none; }
+
+/* ══════════════════════════════════════
+   VOICE NOTE RECORDER (in name modal)
+══════════════════════════════════════ */
+.vn-section {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.vn-label {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.vn-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.btn-vn-record {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(201,169,110,0.4);
+  background: rgba(201,169,110,0.08);
+  color: var(--gold-light);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.btn-vn-record:hover { border-color: var(--gold); background: rgba(201,169,110,0.15); }
+.btn-vn-record.recording {
+  background: rgba(255,68,68,0.15);
+  border-color: #FF4444;
+  color: #FF4444;
+  animation: vnPulse 1s ease-in-out infinite;
+}
+@keyframes vnPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,0.4)} 50%{box-shadow:0 0 0 8px rgba(255,68,68,0)} }
+.btn-vn-record svg { width: 22px; height: 22px; }
+.vn-status {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  min-width: 80px;
+}
+.vn-status.recording { color: #FF8080; }
+.vn-status.recorded  { color: var(--gold-light); }
+.btn-vn-play {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(201,169,110,0.25);
+  background: rgba(201,169,110,0.07);
+  color: var(--gold-light);
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: none; align-items: center; gap: 5px;
+  transition: background 0.2s;
+}
+.btn-vn-play.visible { display: flex; }
+.btn-vn-play:hover { background: rgba(201,169,110,0.15); }
+.btn-vn-play svg { width: 13px; height: 13px; }
+.vn-waveform {
+  width: 100%; max-width: 260px; height: 28px;
+  display: none;
+  align-items: center; gap: 2px; justify-content: center;
+  overflow: hidden;
+}
+.vn-waveform.visible { display: flex; }
+.vn-bar {
+  width: 3px; border-radius: 2px;
+  background: var(--gold);
+  opacity: 0.6;
+  height: 4px;
+  transition: height 0.1s;
+}
+
+/* ══════════════════════════════════════
+   DOWNLOAD & SHARE BUTTONS (playback modal)
+══════════════════════════════════════ */
+.play-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  justify-content: stretch;
+}
+.btn-action {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.7);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: all 0.2s;
+}
+.btn-action:hover { border-color: rgba(201,169,110,0.4); color: var(--gold-light); background: rgba(201,169,110,0.08); }
+.btn-action svg { width: 15px; height: 15px; flex-shrink: 0; }
+.btn-action.primary {
+  background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+  border-color: transparent;
+  color: white;
+}
+.btn-action.primary:hover { opacity: 0.88; }
+
+/* ══════════════════════════════════════
+   FRAME CANVAS (offscreen composite)
+══════════════════════════════════════ */
+#frame-canvas { display: none; }
+
 </style>
 </head>
 <body>
@@ -948,6 +1063,24 @@ body {
     <p class="name-box-sub">Isi nama &amp; pesan singkat untuk Dimas &amp; Nia</p>
     <input class="name-input" id="input-name" type="text" placeholder="Nama kamu" maxlength="40" autocomplete="off"/>
     <textarea class="msg-input" id="input-msg" rows="2" placeholder="Pesan singkat (opsional)..."></textarea>
+    <!-- Voice Note Recorder -->
+    <div class="vn-section">
+      <span class="vn-label">🎙 Voice Note (opsional)</span>
+      <div class="vn-controls">
+        <button class="btn-vn-record" id="btn-vn-record" onclick="toggleVNRecording()">
+          <svg id="vn-icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+          <svg id="vn-icon-stop" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        </button>
+        <span class="vn-status" id="vn-status">Tekan untuk rekam</span>
+        <button class="btn-vn-play" id="btn-vn-play" onclick="previewVN()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Putar
+        </button>
+      </div>
+      <div class="vn-waveform" id="vn-waveform">
+        <div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div><div class="vn-bar"></div>
+      </div>
+    </div>
     <button class="btn-send" onclick="confirmSend()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       Kirim ke Galeri
@@ -972,7 +1105,17 @@ body {
         <span class="play-date" id="play-date"></span>
         <button class="btn-play-vn" id="btn-play-vn" onclick="playVN()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-          Putar Voice Note
+          Putar VN
+        </button>
+      </div>
+      <div class="play-actions">
+        <button class="btn-action" id="btn-download" onclick="downloadMedia()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </button>
+        <button class="btn-action primary" id="btn-share" onclick="shareMedia()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
         </button>
       </div>
     </div>
@@ -980,6 +1123,7 @@ body {
 </div>
 
 <audio id="vn-audio"></audio>
+<canvas id="frame-canvas"></canvas>
 
 <!-- ══ CAPTURE CHOICE SHEET ══ -->
 <!-- Muncul saat FAB ditekan — user pilih: native cam HP atau in-browser cam -->
@@ -1047,7 +1191,20 @@ const CIRC       = 2 * Math.PI * 22;
 
 let gallery      = [];
 let currentVNUrl = null;
+let currentEntry = null;   // entry being viewed in play modal
 let cameraStarted = false;
+
+// Voice Note state
+let vnStream     = null;
+let vnRec        = null;
+let vnChunks     = [];
+let vnBlob       = null;
+let vnIsRec      = false;
+let vnSecs       = 0;
+let vnTimer      = null;
+let vnAnimFrame  = null;
+let vnAnalyser   = null;
+let vnDataArr    = null;
 
 // ── Init ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1308,6 +1465,9 @@ function showPlayback(url, type) {
 
 // ── Retake ────────────────────────────────────────────────
 function retake() {
+  // Reset VN recorder when retaking
+  if (vnIsRec) stopVNRecording();
+  resetVNRecorder();
   capturedBlob = null;
   capturedType = null;
   const playback = document.getElementById('video-playback');
@@ -1330,6 +1490,8 @@ function openNameModal() {
 
 function closeNameModal() {
   document.getElementById('name-modal').classList.remove('open');
+  // Stop active VN recording if modal is dismissed
+  if (vnIsRec) { stopVNRecording(); }
 }
 
 async function confirmSend() {
@@ -1338,10 +1500,25 @@ async function confirmSend() {
   if (!name) { document.getElementById('input-name').focus(); return; }
   if (!capturedBlob) return;
 
-  const blobToSend = capturedBlob;
+  // Stop any ongoing VN recording before sending
+  if (vnIsRec) await stopVNRecording();
+
+  let blobToSend = capturedBlob;
   const typeToSend = capturedType;
 
+  // For photos: composite frame overlay onto the image before uploading
+  if (typeToSend === 'photo') {
+    try {
+      blobToSend = await composePhotoWithFrame(blobToSend);
+    } catch (e) {
+      console.warn('Frame composite failed, using original:', e);
+    }
+  }
+
+  const vnBlobToSend = vnBlob || null;
+
   closeNameModal();
+  resetVNRecorder();
 
   const id       = Date.now();
   const ts       = new Date().toISOString();
@@ -1367,6 +1544,7 @@ async function confirmSend() {
     const filename  = typeToSend === 'video' ? 'video.webm' : 'photo.jpg';
     const fieldname = typeToSend === 'video' ? 'video' : 'photo';
     fd.append(fieldname, blobToSend, filename);
+    if (vnBlobToSend) fd.append('vn', vnBlobToSend, 'voicenote.webm');
 
     const res  = await fetch('/api/submit', { method: 'POST', body: fd });
 
@@ -1524,6 +1702,7 @@ function openPlayModal(idx) {
   const e = gallery[idx];
   if (!e || e.uploading) return;
   currentVNUrl = e.vnUrl || null;
+  currentEntry = e;
   document.getElementById('play-name').textContent = e.name;
   document.getElementById('play-msg').textContent  = e.msg || 'Tidak ada pesan tertulis.';
   document.getElementById('play-date').textContent = fmtDate(e.ts);
@@ -1592,8 +1771,416 @@ function handlePlayModalClick(e) {
 function playVN() {
   if (!currentVNUrl) return;
   const a = document.getElementById('vn-audio');
+  if (a.src && !a.paused) { a.pause(); return; }
   a.src = currentVNUrl;
   a.play();
+}
+
+// ── Download & Share ──────────────────────────────────────
+async function downloadMedia() {
+  const e = currentEntry;
+  if (!e) return;
+  const src = e.serverUrl || e.localUrl;
+  if (!src) return showToast('URL tidak tersedia', true);
+
+  if (src.startsWith('blob:')) {
+    // Local blob — direct download
+    const a = document.createElement('a');
+    a.href = src;
+    a.download = e.type === 'photo' ? `foto_${e.name}.jpg` : `video_${e.name}.webm`;
+    a.click();
+  } else {
+    // Drive URL — open in new tab (direct download from Drive)
+    // For photos: use /uc?export=download link
+    const driveId = e.driveId;
+    if (driveId) {
+      window.open(`https://drive.google.com/uc?export=download&id=${driveId}`, '_blank');
+    } else {
+      window.open(src, '_blank');
+    }
+  }
+  showToast('Mengunduh...');
+}
+
+async function shareMedia() {
+  const e = currentEntry;
+  if (!e) return;
+  const src = e.serverUrl || e.localUrl;
+
+  const shareData = {
+    title: 'The Wedding of Dimas & Nia',
+    text: `Momen dari ${e.name} di pernikahan Dimas & Nia 💕${e.msg ? '\n"' + e.msg + '"' : ''}`,
+    url: src && !src.startsWith('blob:') ? src : window.location.href,
+  };
+
+  // If we have a local blob, try to share the file directly
+  if (src && src.startsWith('blob:') && navigator.canShare) {
+    try {
+      const resp = await fetch(src);
+      const blob = await resp.blob();
+      const ext  = e.type === 'photo' ? 'jpg' : 'webm';
+      const file = new File([blob], `momen_${e.name}.${ext}`, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ ...shareData, files: [file] });
+        return;
+      }
+    } catch (_) {}
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('Gagal share: ' + err.message, true);
+    }
+  } else {
+    // Fallback: copy link
+    try {
+      await navigator.clipboard.writeText(shareData.url);
+      showToast('Link disalin ke clipboard!');
+    } catch {
+      showToast('Share tidak didukung browser ini', true);
+    }
+  }
+}
+
+// ── Photo Frame Composite ─────────────────────────────────
+async function composePhotoWithFrame(photoBlob) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(photoBlob);
+    img.onload = () => {
+      const canvas = document.getElementById('frame-canvas');
+      // Use portrait aspect 9:16 — match the photo dimensions
+      const W = img.naturalWidth  || 1080;
+      const H = img.naturalHeight || 1920;
+      canvas.width  = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      // 1. Draw photo
+      ctx.drawImage(img, 0, 0, W, H);
+      URL.revokeObjectURL(url);
+
+      // 2. Draw frame SVG overlay
+      const svgStr = buildFrameSVG(W, H);
+      const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
+      const svgUrl  = URL.createObjectURL(svgBlob);
+      const svgImg  = new Image();
+      svgImg.onload = () => {
+        ctx.drawImage(svgImg, 0, 0, W, H);
+        URL.revokeObjectURL(svgUrl);
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error('Canvas toBlob failed'));
+        }, 'image/jpeg', 0.93);
+      };
+      svgImg.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        resolve(photoBlob); // fallback original
+      };
+      svgImg.src = svgUrl;
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('img load failed')); };
+    img.src = url;
+  });
+}
+
+function buildFrameSVG(W, H) {
+  // Scale factor — design is based on a 1080×1920 canvas
+  const sx = W / 1080;
+  const sy = H / 1920;
+  
+  // Frame border thickness in % of width
+  const bw = W * 0.05;
+  
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <!-- Red glitter border gradient -->
+    <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#CC0000"/>
+      <stop offset="25%"  stop-color="#FF2222"/>
+      <stop offset="50%"  stop-color="#AA0000"/>
+      <stop offset="75%"  stop-color="#FF4444"/>
+      <stop offset="100%" stop-color="#CC0000"/>
+    </linearGradient>
+    <!-- Glitter noise filter -->
+    <filter id="glitter" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
+      <feColorMatrix type="saturate" values="3" in="noise" result="colorNoise"/>
+      <feComposite in="colorNoise" in2="SourceGraphic" operator="in" result="glitter"/>
+      <feBlend in="SourceGraphic" in2="glitter" mode="multiply"/>
+    </filter>
+    <clipPath id="innerClip">
+      <rect x="${bw}" y="${bw}" width="${W - bw*2}" height="${H - bw*2}" rx="${bw*0.3}"/>
+    </clipPath>
+  </defs>
+
+  <!-- Transparent inside (show photo through) -->
+  <!-- Outer border frame with glitter effect -->
+  <rect x="${bw*0.3}" y="${bw*0.3}" width="${W - bw*0.6}" height="${H - bw*0.6}" 
+    rx="${bw*0.5}" ry="${bw*0.5}"
+    fill="none" 
+    stroke="url(#rg1)" 
+    stroke-width="${bw*1.2}"
+    filter="url(#glitter)"
+    opacity="0.92"/>
+  
+  <!-- Glitter sparkles randomly scattered on border -->
+  ${buildSparkles(W, H, bw)}
+
+  <!-- Bottom white area for text (approx bottom 28% of image) -->
+  <rect x="0" y="${H*0.72}" width="${W}" height="${H*0.28}" fill="white" opacity="0.96"/>
+
+  <!-- Bow at top center -->
+  ${buildBow(W, bw)}
+
+  <!-- Bottom text: THE WEDDING OF -->
+  <text x="${W/2}" y="${H*0.765}" 
+    font-family="Georgia, serif" font-size="${W*0.03}" 
+    fill="#CC0000" letter-spacing="${W*0.008}"
+    text-anchor="middle" font-weight="400">THE WEDDING OF</text>
+
+  <!-- Dimas &amp; Nia signature text -->
+  <text x="${W*0.55}" y="${H*0.835}" 
+    font-family="Georgia, 'Times New Roman', serif" font-size="${W*0.13}" 
+    fill="#CC0000" text-anchor="middle" font-style="italic" font-weight="700">Dimas &amp;</text>
+  <text x="${W*0.62}" y="${H*0.925}" 
+    font-family="Georgia, 'Times New Roman', serif" font-size="${W*0.14}" 
+    fill="#CC0000" text-anchor="middle" font-style="italic" font-weight="700">Nia</text>
+
+  <!-- Couple illustration placeholder (line art style) -->
+  ${buildCoupleIllustration(W, H)}
+</svg>`;
+}
+
+function buildSparkles(W, H, bw) {
+  // Scatter sparkle stars along the border edges
+  const sparkles = [];
+  const positions = [
+    // top edge
+    {x: W*0.15, y: bw*0.6}, {x: W*0.3, y: bw*0.4}, {x: W*0.5, y: bw*0.5},
+    {x: W*0.7, y: bw*0.35}, {x: W*0.85, y: bw*0.6}, {x: W*0.95, y: bw*0.8},
+    // bottom edge (within border)
+    {x: W*0.6, y: H*0.72-bw*0.4}, {x: W*0.8, y: H*0.72-bw*0.3},
+    // left edge
+    {x: bw*0.5, y: H*0.2}, {x: bw*0.4, y: H*0.35}, {x: bw*0.6, y: H*0.5},
+    {x: bw*0.3, y: H*0.62}, {x: bw*0.5, y: H*0.68},
+    // right edge
+    {x: W-bw*0.5, y: H*0.18}, {x: W-bw*0.35, y: H*0.32}, {x: W-bw*0.55, y: H*0.48},
+    {x: W-bw*0.4, y: H*0.6}, {x: W-bw*0.6, y: H*0.7},
+  ];
+  positions.forEach(({x, y}, i) => {
+    const s = bw * (0.15 + (i % 3) * 0.07);
+    sparkles.push(`<path d="M${x},${y-s} L${x+s*0.25},${y-s*0.25} L${x+s},${y} L${x+s*0.25},${y+s*0.25} L${x},${y+s} L${x-s*0.25},${y+s*0.25} L${x-s},${y} L${x-s*0.25},${y-s*0.25} Z" fill="white" opacity="${0.4 + (i%3)*0.15}"/>`);
+  });
+  return sparkles.join('\n  ');
+}
+
+function buildBow(W, bw) {
+  const cx = W / 2;
+  const cy = bw * 0.35;
+  const bs = bw * 0.6;
+  return `
+  <!-- Left bow loop -->
+  <ellipse cx="${cx - bs*0.7}" cy="${cy}" rx="${bs*0.65}" ry="${bs*0.38}" 
+    fill="none" stroke="#CC0000" stroke-width="${bw*0.12}" 
+    transform="rotate(-20 ${cx - bs*0.7} ${cy})"/>
+  <!-- Right bow loop -->
+  <ellipse cx="${cx + bs*0.7}" cy="${cy}" rx="${bs*0.65}" ry="${bs*0.38}" 
+    fill="none" stroke="#CC0000" stroke-width="${bw*0.12}"
+    transform="rotate(20 ${cx + bs*0.7} ${cy})"/>
+  <!-- Bow center knot -->
+  <ellipse cx="${cx}" cy="${cy}" rx="${bs*0.18}" ry="${bs*0.2}" 
+    fill="#CC0000" opacity="0.9"/>
+  <!-- Ribbon tails -->
+  <path d="M${cx-bs*0.1},${cy+bs*0.15} Q${cx-bs*0.3},${cy+bs*0.6} ${cx-bs*0.5},${cy+bs*0.9}" 
+    fill="none" stroke="#CC0000" stroke-width="${bw*0.1}" stroke-linecap="round"/>
+  <path d="M${cx+bs*0.1},${cy+bs*0.15} Q${cx+bs*0.3},${cy+bs*0.6} ${cx+bs*0.5},${cy+bs*0.9}" 
+    fill="none" stroke="#CC0000" stroke-width="${bw*0.1}" stroke-linecap="round"/>`;
+}
+
+function buildCoupleIllustration(W, H) {
+  // Simple line-art couple illustration at bottom-left, matching reference style
+  const bx = W * 0.04;  // base x
+  const by = H * 0.97;  // base y (feet)
+  const scale = W * 0.001; // scale factor
+  const s = W * 0.12;  // unit size
+
+  // Man (left)
+  const mx = bx + s * 0.3;
+  const my = by - s * 0.1;
+  // Woman (center-right of man)
+  const wx = bx + s * 1.0;
+  const wy = by - s * 0.1;
+
+  return `
+  <!-- Couple line illustration -->
+  <g fill="none" stroke="#CC0000" stroke-width="${W*0.008}" stroke-linecap="round" opacity="0.85">
+    <!-- Man body -->
+    <circle cx="${mx}" cy="${my - s*2.5}" r="${s*0.28}" fill="#CC0000" opacity="0.7"/>
+    <line x1="${mx}" y1="${my - s*2.2}" x2="${mx}" y2="${my - s*1.1}"/>
+    <!-- Man arms -->
+    <path d="M${mx - s*0.35},${my - s*1.9} Q${mx + s*0.5},${my - s*1.6} ${wx - s*0.1},${my - s*1.8}"/>
+    <line x1="${mx - s*0.35}" y1="${my - s*1.9}" x2="${mx - s*0.65}" y2="${my - s*1.4}"/>
+    <!-- Man legs -->
+    <line x1="${mx}" y1="${my - s*1.1}" x2="${mx - s*0.25}" y2="${my}"/>
+    <line x1="${mx}" y1="${my - s*1.1}" x2="${mx + s*0.2}" y2="${my}"/>
+    <!-- Man shirt detail -->
+    <path d="M${mx-s*0.18},${my-s*1.8} L${mx},${my-s*2.0} L${mx+s*0.18},${my-s*1.8}" stroke-width="${W*0.005}"/>
+
+    <!-- Woman body -->
+    <circle cx="${wx}" cy="${wy - s*2.6}" r="${s*0.26}" fill="#CC0000" opacity="0.7"/>
+    <path d="M${wx} ${wy - s*2.34} Q${wx - s*0.5},${wy - s*1.4} ${wx - s*0.45},${wy}" 
+      fill="none"/>
+    <path d="M${wx} ${wy - s*2.34} Q${wx + s*0.5},${wy - s*1.4} ${wx + s*0.45},${wy}" 
+      fill="none"/>
+    <!-- Dress flare -->
+    <path d="M${wx - s*0.45},${wy} Q${wx},${wy + s*0.1} ${wx + s*0.45},${wy}" 
+      fill="none"/>
+    <!-- Woman arm with sunflower -->
+    <line x1="${wx + s*0.3}" y1="${wy - s*2.1}" x2="${wx + s*0.7}" y2="${wy - s*1.65}"/>
+    <!-- Sunflower (woman) -->
+    <circle cx="${wx + s*0.75}" cy="${wy - s*1.6}" r="${s*0.14}" fill="#CC0000" opacity="0.5"/>
+    <line x1="${wx + s*0.75}" y1="${wy - s*1.74}" x2="${wx + s*0.75}" y2="${wy - s*1.9}" stroke-width="${W*0.006}"/>
+    <!-- Woman hair -->
+    <path d="M${wx-s*0.2},${wy-s*2.82} Q${wx-s*0.05},${wy-s*2.95} ${wx+s*0.05},${wy-s*2.82}" fill="#CC0000" opacity="0.5"/>
+
+    <!-- Man sunflower (left hand) -->
+    <line x1="${mx - s*0.65}" y1="${my - s*1.4}" x2="${mx - s*0.85}" y2="${my - s*1.0}"/>
+    <circle cx="${mx - s*0.88}" cy="${my - s*0.95}" r="${s*0.13}" fill="#CC0000" opacity="0.5"/>
+  </g>`;
+}
+
+// ── Voice Note Recording ───────────────────────────────────
+async function toggleVNRecording() {
+  if (vnIsRec) {
+    await stopVNRecording();
+  } else {
+    await startVNRecording();
+  }
+}
+
+async function startVNRecording() {
+  try {
+    vnStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    showToast('Akses mikrofon ditolak', true);
+    return;
+  }
+
+  vnChunks = [];
+  vnBlob   = null;
+  vnSecs   = 0;
+
+  // Setup analyser for waveform
+  try {
+    const ctx = new AudioContext();
+    const src = ctx.createMediaStreamSource(vnStream);
+    vnAnalyser = ctx.createAnalyser();
+    vnAnalyser.fftSize = 64;
+    vnDataArr  = new Uint8Array(vnAnalyser.frequencyBinCount);
+    src.connect(vnAnalyser);
+  } catch (_) {}
+
+  const mime = ['audio/webm;codecs=opus','audio/webm','audio/ogg']
+    .find(m => MediaRecorder.isTypeSupported(m)) || '';
+  vnRec = new MediaRecorder(vnStream, mime ? { mimeType: mime } : {});
+  vnRec.ondataavailable = e => { if (e.data.size > 0) vnChunks.push(e.data); };
+  vnRec.onstop = () => {
+    vnBlob = new Blob(vnChunks, { type: vnRec.mimeType || 'audio/webm' });
+    updateVNUI('recorded');
+  };
+  vnRec.start(200);
+  vnIsRec = true;
+
+  updateVNUI('recording');
+  vnTimer = setInterval(() => {
+    vnSecs++;
+    if (vnSecs >= 120) stopVNRecording(); // max 2 min
+  }, 1000);
+  animateVNWaveform();
+}
+
+async function stopVNRecording() {
+  clearInterval(vnTimer);
+  cancelAnimationFrame(vnAnimFrame);
+  vnIsRec = false;
+  if (vnRec && vnRec.state !== 'inactive') vnRec.stop();
+  if (vnStream) { vnStream.getTracks().forEach(t => t.stop()); vnStream = null; }
+  vnAnalyser = null;
+}
+
+function animateVNWaveform() {
+  if (!vnIsRec) return;
+  const bars = document.querySelectorAll('.vn-bar');
+  if (vnAnalyser && vnDataArr) {
+    vnAnalyser.getByteFrequencyData(vnDataArr);
+    bars.forEach((bar, i) => {
+      const v = (vnDataArr[i % vnDataArr.length] || 0) / 255;
+      bar.style.height = Math.max(4, v * 24) + 'px';
+      bar.style.opacity = 0.4 + v * 0.6;
+    });
+  } else {
+    // Animate randomly if no analyser
+    bars.forEach(bar => {
+      const h = 4 + Math.random() * 20;
+      bar.style.height = h + 'px';
+    });
+  }
+  vnAnimFrame = requestAnimationFrame(animateVNWaveform);
+}
+
+function updateVNUI(state) {
+  const btn    = document.getElementById('btn-vn-record');
+  const status = document.getElementById('vn-status');
+  const playBtn= document.getElementById('btn-vn-play');
+  const waveform = document.getElementById('vn-waveform');
+  const micIcon  = document.getElementById('vn-icon-mic');
+  const stopIcon = document.getElementById('vn-icon-stop');
+
+  if (state === 'recording') {
+    btn.classList.add('recording');
+    status.className = 'vn-status recording';
+    status.textContent = '🔴 Merekam...';
+    micIcon.style.display = 'none';
+    stopIcon.style.display = 'block';
+    waveform.classList.add('visible');
+    playBtn.classList.remove('visible');
+  } else if (state === 'recorded') {
+    btn.classList.remove('recording');
+    status.className = 'vn-status recorded';
+    status.textContent = '✓ Voice note siap';
+    micIcon.style.display = 'block';
+    stopIcon.style.display = 'none';
+    waveform.classList.remove('visible');
+    playBtn.classList.add('visible');
+    // Reset bars
+    document.querySelectorAll('.vn-bar').forEach(b => b.style.height = '4px');
+  } else {
+    btn.classList.remove('recording');
+    status.className = 'vn-status';
+    status.textContent = 'Tekan untuk rekam';
+    micIcon.style.display = 'block';
+    stopIcon.style.display = 'none';
+    waveform.classList.remove('visible');
+    playBtn.classList.remove('visible');
+  }
+}
+
+function previewVN() {
+  if (!vnBlob) return;
+  const audio = document.getElementById('vn-audio');
+  const url   = URL.createObjectURL(vnBlob);
+  audio.src   = url;
+  audio.play();
+}
+
+function resetVNRecorder() {
+  vnBlob  = null;
+  vnChunks = [];
+  vnSecs   = 0;
+  updateVNUI('idle');
 }
 
 // ── Helpers ───────────────────────────────────────────────
