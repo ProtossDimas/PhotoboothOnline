@@ -2,10 +2,12 @@
  * functions/[[catchall]].js
  * Wedding Video Booth — Cloudflare Pages Function
  *
- * FIXES:
- * 1. Tambah `next()` passthrough agar index.html ter-serve oleh Cloudflare static assets
- * 2. Export onRequestGet + onRequestPost + onRequestOptions secara eksplisit
- * 3. Destruktur `next` dari ctx agar bisa dipanggil untuk non-API routes
+ * FIXES v2:
+ * 1. VN URL: simpan sebagai audio streaming URL (/uc?export=download) bukan thumbnail
+ * 2. Tambah /api/vn-proxy endpoint agar audio bisa diplay via proxy (bypass CORS Drive)
+ * 3. VN di galeri pakai vn_drive_id — frontend fetch via /api/vn-proxy?id=DRIVE_ID
+ * 4. Hapus driveViewUrl untuk VN — pakai driveAudioUrl yang benar
+ * 5. Export semua named handlers + generic fallback
  *
  * Google Sheet tab "Entries" — baris 1 header:
  *   A:timestamp  B:name  C:message  D:media_url  E:vn_url  F:drive_id  G:vn_drive_id  H:media_type
@@ -18,19 +20,19 @@
  */
 
 // ── Shared dispatcher ────────────────────────────────────────────────────────
-// FIX: Destruktur `next` dari ctx — diperlukan agar static assets (index.html) bisa di-serve
 async function dispatch({ request, env, next }) {
   const { pathname } = new URL(request.url);
   const method = request.method;
 
   try {
     if (method === 'OPTIONS')                              return cors204();
-    if (pathname === '/api/submit'  && method === 'POST') return await handleSubmit(request, env);
-    if (pathname === '/api/gallery' && method === 'GET')  return await handleGallery(env);
-    if (pathname === '/api/debug'   && method === 'GET')  return await handleDebug(env);
+    if (pathname === '/api/submit'   && method === 'POST') return await handleSubmit(request, env);
+    if (pathname === '/api/gallery'  && method === 'GET')  return await handleGallery(env);
+    if (pathname === '/api/debug'    && method === 'GET')  return await handleDebug(env);
+    // NEW: Proxy audio VN dari Drive agar bisa diplay di browser (bypass CORS + Auth)
+    if (pathname === '/api/vn-proxy' && method === 'GET')  return await handleVNProxy(request, env);
 
-    // FIX: Semua request non-API (termasuk "/") di-pass ke Cloudflare static asset handler
-    // Ini yang membuat index.html ter-serve dengan benar
+    // Semua request non-API di-pass ke Cloudflare static asset handler
     return next();
   } catch (err) {
     console.error('[dispatch]', err);
@@ -38,11 +40,9 @@ async function dispatch({ request, env, next }) {
   }
 }
 
-// FIX 405: Export named handlers — Cloudflare Pages butuh ini agar POST ter-route
 export const onRequestGet     = (ctx) => dispatch(ctx);
 export const onRequestPost    = (ctx) => dispatch(ctx);
 export const onRequestOptions = (ctx) => dispatch(ctx);
-// Generic fallback juga disertakan
 export const onRequest        = (ctx) => dispatch(ctx);
 
 // ═══════════════════════════════════════════════════════════
@@ -83,11 +83,15 @@ async function handleSubmit(request, env) {
   const mediaUrl     = isPhoto ? driveViewUrl(mediaDriveId) : drivePreviewUrl(mediaDriveId);
 
   // Upload voice note (opsional)
+  // FIX: vnUrl sekarang pakai /api/vn-proxy?id=DRIVE_ID agar audio bisa diplay browser
   let vnUrl = '', vnDriveId = '';
   if (vnFile && vnFile.size > 0) {
-    const vnMime = vnFile.type || 'audio/webm';
-    vnDriveId    = await driveResumableUpload(token, folderId, 'voicenote.webm', vnMime, vnFile);
-    vnUrl        = driveViewUrl(vnDriveId);
+    const vnMime  = vnFile.type || 'audio/webm';
+    vnDriveId     = await driveResumableUpload(token, folderId, 'voicenote.webm', vnMime, vnFile);
+    // PENTING: Simpan proxy URL agar audio bisa distream via Worker
+    // Format: /api/vn-proxy?id=DRIVE_ID
+    // Worker akan fetch dari Drive menggunakan service account token
+    vnUrl         = `/api/vn-proxy?id=${vnDriveId}`;
   }
 
   // Simpan ke Sheets
@@ -98,8 +102,12 @@ async function handleSubmit(request, env) {
 
   return jsonRes({
     ok: true,
-    media_url: mediaUrl, video_url: mediaUrl, photo_url: mediaUrl,
-    vn_url: vnUrl, media_type: mediaType,
+    media_url:   mediaUrl,
+    video_url:   mediaUrl,
+    photo_url:   mediaUrl,
+    vn_url:      vnUrl,       // /api/vn-proxy?id=... — bisa langsung diplay
+    vn_drive_id: vnDriveId,
+    media_type:  mediaType,
   });
 }
 
@@ -118,18 +126,89 @@ async function handleGallery(env) {
 
   const entries = data.values.slice(1)
     .filter(r => r[0] && r[3])
-    .map(r => ({
-      timestamp:  r[0] || '',
-      name:       r[1] || 'Tamu',
-      message:    r[2] || '',
-      video_url:  r[3] || '',
-      vn_url:     r[4] || '',
-      drive_id:   r[5] || '',
-      media_type: r[7] || 'video',
-    }))
+    .map(r => {
+      const vnDriveId = r[6] || '';
+      // FIX: Rekonstruksi vn_url sebagai proxy URL
+      // - Jika kolom E sudah berisi /api/vn-proxy?id=... → pakai langsung
+      // - Jika kolom E berisi URL Drive lama (thumbnail/drive.google.com) → convert ke proxy
+      // - Jika kosong tapi kolom G ada drive_id → buat proxy URL baru
+      let vnUrl = r[4] || '';
+      if (vnDriveId) {
+        // Selalu pakai vn_drive_id untuk construct proxy URL yang benar
+        vnUrl = `/api/vn-proxy?id=${vnDriveId}`;
+      } else if (vnUrl && !vnUrl.startsWith('/api/vn-proxy')) {
+        // VN URL lama dari Drive langsung — clear karena tidak bisa diplay
+        vnUrl = '';
+      }
+
+      return {
+        timestamp:   r[0] || '',
+        name:        r[1] || 'Tamu',
+        message:     r[2] || '',
+        video_url:   r[3] || '',
+        vn_url:      vnUrl,
+        drive_id:    r[5] || '',
+        vn_drive_id: vnDriveId,
+        media_type:  r[7] || 'video',
+      };
+    })
     .reverse();
 
   return jsonRes({ ok: true, entries });
+}
+
+// ═══════════════════════════════════════════════════════════
+// VN PROXY  GET /api/vn-proxy?id=DRIVE_FILE_ID
+// Proxy audio dari Google Drive agar bisa diplay di browser
+// tanpa CORS issue dan tanpa expose service account token
+// ═══════════════════════════════════════════════════════════
+async function handleVNProxy(request, env) {
+  const url      = new URL(request.url);
+  const fileId   = url.searchParams.get('id');
+  if (!fileId) return new Response('Missing id parameter', { status: 400 });
+
+  let token;
+  try { token = await googleToken(env); }
+  catch (e) { return new Response('Auth failed: ' + e.message, { status: 500 }); }
+
+  // Fetch file dari Drive API dengan service account token
+  // alt=media → streaming file content langsung
+  const driveUrl  = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&supportsAllDrives=true`;
+  const rangeHdr  = request.headers.get('Range');
+
+  const fetchHeaders = {
+    Authorization: `Bearer ${token}`,
+  };
+  // Forward Range header agar browser bisa seek audio
+  if (rangeHdr) fetchHeaders['Range'] = rangeHdr;
+
+  const driveRes = await fetch(driveUrl, { headers: fetchHeaders });
+
+  if (!driveRes.ok) {
+    const errText = await driveRes.text();
+    return new Response('Drive fetch failed: ' + errText.slice(0, 200), {
+      status: driveRes.status,
+    });
+  }
+
+  // Forward response headers yang relevan
+  const resHeaders = {
+    'Content-Type':  driveRes.headers.get('Content-Type')  || 'audio/webm',
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'private, max-age=3600',
+    ...corsHeaders(),
+  };
+
+  const contentLength = driveRes.headers.get('Content-Length');
+  if (contentLength) resHeaders['Content-Length'] = contentLength;
+
+  const contentRange = driveRes.headers.get('Content-Range');
+  if (contentRange) resHeaders['Content-Range'] = contentRange;
+
+  return new Response(driveRes.body, {
+    status:  driveRes.status, // 200 atau 206 (partial content untuk seek)
+    headers: resHeaders,
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -137,12 +216,13 @@ async function handleGallery(env) {
 // ═══════════════════════════════════════════════════════════
 async function handleDebug(env) {
   const r = {
-    ts: new Date().toISOString(),
+    ts:         new Date().toISOString(),
+    version:    'v2-vn-proxy',
     env_email:  !!env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     env_key:    !!env.GOOGLE_PRIVATE_KEY,
     env_folder: !!env.GOOGLE_DRIVE_FOLDER_ID,
     env_sheet:  !!env.GOOGLE_SHEET_ID,
-    sheet_id:   env.GOOGLE_SHEET_ID   || '(not set)',
+    sheet_id:   env.GOOGLE_SHEET_ID        || '(not set)',
     folder_id:  env.GOOGLE_DRIVE_FOLDER_ID || '(not set)',
   };
   try {
@@ -220,7 +300,6 @@ async function sheetsAppend(token, sheetId, values) {
 // GOOGLE DRIVE
 // ═══════════════════════════════════════════════════════════
 async function driveCreateFolder(token, parentId, name) {
-  // supportsAllDrives=true wajib untuk Shared Drive / Team Drive
   const res = await fetch('https://www.googleapis.com/drive/v3/files?supportsAllDrives=true', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -231,9 +310,8 @@ async function driveCreateFolder(token, parentId, name) {
   return JSON.parse(txt).id;
 }
 
-// Resumable upload — stream langsung, tidak buffer di Worker memory
 async function driveResumableUpload(token, folderId, filename, mimeType, file) {
-  // Step 1: Initiate — dapatkan upload session URI
+  // Step 1: Initiate
   const initRes = await fetch(
     'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id&supportsAllDrives=true',
     {
@@ -254,19 +332,19 @@ async function driveResumableUpload(token, folderId, filename, mimeType, file) {
   const uploadUrl = initRes.headers.get('Location');
   if (!uploadUrl) throw new Error('Drive: Location header kosong setelah initiate');
 
-  // Step 2: Upload — stream file body ke URI (tidak di-buffer di Worker)
+  // Step 2: Upload
   const uploadRes = await fetch(uploadUrl, {
     method: 'PUT',
     headers: { 'Content-Type': mimeType, 'Content-Length': String(file.size) },
     body: file.stream(),
-    // @ts-ignore — Cloudflare Workers support streaming body
+    // @ts-ignore
     duplex: 'half',
   });
   const uploadTxt = await uploadRes.text();
   if (!uploadRes.ok) throw new Error(`Drive upload ${uploadRes.status}: ${uploadTxt.slice(0, 200)}`);
   const { id } = JSON.parse(uploadTxt);
 
-  // Step 3: Set public permission
+  // Step 3: Set public permission (untuk media/foto — VN tidak perlu public karena via proxy)
   const permRes = await fetch(`https://www.googleapis.com/drive/v3/files/${id}/permissions?supportsAllDrives=true`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -277,14 +355,11 @@ async function driveResumableUpload(token, folderId, filename, mimeType, file) {
   return id;
 }
 
-// Thumbnail untuk embed di <img> — bekerja tanpa CORS block
-// Video tidak bisa di-embed via Drive, pakai iframe preview player
 function driveViewUrl(id) {
   if (!id) return '';
   return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
 }
 
-// URL preview player untuk video (dipakai di play modal)
 function drivePreviewUrl(id) {
   if (!id) return '';
   return `https://drive.google.com/file/d/${id}/preview`;
@@ -300,7 +375,7 @@ function corsHeaders() {
   return {
     'Access-Control-Allow-Origin':  '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Range',
   };
 }
 function jsonRes(data, status = 200) {
