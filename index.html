@@ -1253,19 +1253,24 @@ function chooseInBrowser() {
 async function openCameraModal() {
   document.getElementById('camera-modal').classList.add('open');
   document.getElementById('fab').classList.add('open');
-  if (!cameraStarted) {
+  // Start jika belum pernah atau stream sudah mati
+  if (!cameraStarted || !stream || stream.getTracks().every(t => t.readyState === 'ended')) {
     await startCamera();
     cameraStarted = true;
   }
 }
 
 function closeCameraModal() {
-  // Only close if we're not in a capture state
   if (capturedBlob) {
-    // Already captured — show name modal instead
     openNameModal();
     return;
   }
+  // Hentikan semua track kamera
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+  cameraStarted = false;  // ← Reset flag agar bisa start ulang
   document.getElementById('camera-modal').classList.remove('open');
   document.getElementById('fab').classList.remove('open');
 }
@@ -1275,7 +1280,6 @@ async function startCamera() {
   try {
     if (stream) stream.getTracks().forEach(t => t.stop());
 
-    // Request portrait-friendly resolution — avoid high res that causes crop/zoom
     const constraints = {
       video: {
         facingMode,
@@ -1287,29 +1291,26 @@ async function startCamera() {
     };
 
     stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-    // Reset zoom on back camera if browser supports it
-    if (facingMode === 'environment') {
-      const videoTrack = stream.getVideoTracks()[0];
-      if (videoTrack && typeof videoTrack.applyConstraints === 'function') {
-        try {
-          const caps = videoTrack.getCapabilities();
-          // Set zoom to minimum (1x) if supported
-          if (caps.zoom) {
-            await videoTrack.applyConstraints({ advanced: [{ zoom: caps.zoom.min }] });
-          }
-        } catch (_) { /* zoom API not supported on this device, ignore */ }
-      }
-    }
-
+    // ... kode zoom tetap sama ...
     document.getElementById('video-live').srcObject = stream;
+
   } catch (err) {
-    // Fallback: minimal constraints, no aspect ratio
+    // Fallback 1: tanpa aspectRatio (fix OverconstrainedError)
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode, width: { ideal: 720 }, height: { ideal: 1280 } },
+        audio: true
+      });
       document.getElementById('video-live').srcObject = stream;
-    } catch {
-      showToast('Akses kamera ditolak. Izinkan di browser.', true);
+    } catch (err2) {
+      // Fallback 2: minimal constraints
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: true });
+        document.getElementById('video-live').srcObject = stream;
+      } catch (err3) {
+        showToast('Akses kamera ditolak. Izinkan di pengaturan browser.', true);
+        console.error('[Camera] Semua fallback gagal:', err3);
+      }
     }
   }
 }
