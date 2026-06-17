@@ -80,7 +80,7 @@ async function handleSubmit(request, env) {
   // Upload media — resumable agar tidak timeout
   const mediaDriveId = await driveResumableUpload(token, folderId, mediaName, mediaMime, mediaFile);
   // Foto: pakai thumbnail (embed langsung). Video: pakai preview player iframe Google Drive
-  const mediaUrl     = isPhoto ? driveViewUrl(mediaDriveId) : drivePreviewUrl(mediaDriveId);
+  const mediaUrl     = isPhoto ? (mediaDriveId) : drivePreviewUrl(mediaDriveId);
 
   // Upload voice note (opsional)
   // FIX: vnUrl sekarang pakai /api/vn-proxy?id=DRIVE_ID agar audio bisa diplay browser
@@ -357,7 +357,7 @@ async function driveResumableUpload(token, folderId, filename, mimeType, file) {
 
 function driveViewUrl(id) {
   if (!id) return '';
-  return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+  return `https://drive.google.com/uc?export=view&id=${id}`;
 }
 
 function drivePreviewUrl(id) {
