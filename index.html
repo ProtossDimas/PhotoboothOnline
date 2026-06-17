@@ -1261,18 +1261,19 @@ async function openCameraModal() {
 }
 
 function closeCameraModal() {
-  if (capturedBlob) {
-    openNameModal();
-    return;
-  }
-  // Hentikan semua track kamera
+  // Hentikan semua track kamera — SELALU, baik ada capturedBlob atau tidak
   if (stream) {
     stream.getTracks().forEach(t => t.stop());
     stream = null;
   }
-  cameraStarted = false;  // ← Reset flag agar bisa start ulang
+  cameraStarted = false;
   document.getElementById('camera-modal').classList.remove('open');
   document.getElementById('fab').classList.remove('open');
+  // Jika sudah ada capture, buka name modal
+  retake();
+  if (capturedBlob) {
+    openNameModal();
+  }
 }
 
 // ── Camera ────────────────────────────────────────────────
@@ -1471,7 +1472,6 @@ function showPlayback(url, type) {
 
 // ── Retake ────────────────────────────────────────────────
 function retake() {
-  // Reset VN recorder when retaking
   if (vnIsRec) stopVNRecording();
   resetVNRecorder();
   capturedBlob = null;
@@ -1486,6 +1486,8 @@ function retake() {
   document.getElementById('mode-video').disabled = false;
   document.getElementById('mode-photo').disabled = false;
   closeNameModal();
+  // ← TAMBAHKAN INI: restart stream kamera
+  startCamera();
 }
 
 // ── Name modal ────────────────────────────────────────────
