@@ -1343,50 +1343,22 @@ function handleShutter() {
 // ── Photo ─────────────────────────────────────────────────
 function takePhoto() {
   const video = document.getElementById('video-live');
-
-  // Resolusi asli video dari kamera (bisa berbeda rasio dari 9:16)
-  const srcW = video.videoWidth  || 1080;
-  const srcH = video.videoHeight || 1920;
-
-  // Target rasio output HARUS sama dengan rasio frame PNG (9:16)
-  // supaya hasil foto persis sama seperti yang terlihat di preview
-  // (preview pakai object-fit: cover pada kotak 9:16).
-  const TARGET_RATIO = 9 / 16;
-  const srcRatio = srcW / srcH;
-
-  // Hitung area crop dari video sumber agar rasionya jadi 9:16,
-  // meniru perilaku CSS object-fit: cover (crop dari tengah).
-  let cropW, cropH, cropX, cropY;
-  if (srcRatio > TARGET_RATIO) {
-    // Video sumber lebih "lebar" dari 9:16 → crop kiri-kanan
-    cropH = srcH;
-    cropW = srcH * TARGET_RATIO;
-    cropX = (srcW - cropW) / 2;
-    cropY = 0;
-  } else {
-    // Video sumber lebih "tinggi/sempit" dari 9:16 → crop atas-bawah
-    cropW = srcW;
-    cropH = srcW / TARGET_RATIO;
-    cropX = 0;
-    cropY = (srcH - cropH) / 2;
-  }
-
-  // Output canvas pakai resolusi tetap & rasio pas 9:16
-  // agar selalu match dengan frame PNG (1080x1920).
-  const outW = 1080;
-  const outH = 1920;
   const canvas = document.createElement('canvas');
-  canvas.width  = outW;
-  canvas.height = outH;
+
+  // Use portrait resolution
+  const vw = video.videoWidth  || 1080;
+  const vh = video.videoHeight || 1920;
+  canvas.width  = vw;
+  canvas.height = vh;
 
   const ctx = canvas.getContext('2d');
   ctx.save();
   if (facingMode === 'user') {
-    // Mirror horizontal untuk kamera depan
-    ctx.translate(outW, 0);
     ctx.scale(-1, 1);
+    ctx.drawImage(video, -vw, 0, vw, vh);
+  } else {
+    ctx.drawImage(video, 0, 0, vw, vh);
   }
-  ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, outW, outH);
   ctx.restore();
 
   // Flash
@@ -1394,22 +1366,11 @@ function takePhoto() {
   flash.classList.add('flash');
   setTimeout(() => flash.classList.remove('flash'), 150);
 
- canvas.toBlob(async blob => {
-  if (!blob) return;
-
-  // Gabungkan foto dengan frame PNG
-  const framedBlob = await composePhotoWithFrame(blob);
-
-  capturedBlob = framedBlob;
-  capturedType = 'photo';
-
-  // Preview yang tampil sudah termasuk frame
-  showPlayback(
-    URL.createObjectURL(framedBlob),
-    'photo'
-  );
-
-}, 'image/jpeg', 0.92);
+  canvas.toBlob(blob => {
+    capturedBlob = blob;
+    capturedType = 'photo';
+    showPlayback(URL.createObjectURL(blob), 'photo');
+  }, 'image/jpeg', 0.92);
 }
 
 // ── Video countdown → record ──────────────────────────────
@@ -1555,12 +1516,12 @@ async function confirmSend() {
   const typeToSend = capturedType;
 
   // For photos: composite frame overlay onto the image before uploading
- /* if (typeToSend === 'photo') {
+  if (typeToSend === 'photo') {
     try {
       blobToSend = await composePhotoWithFrame(blobToSend);
     } catch (e) {
       console.warn('Frame composite failed, using original:', e);
-    }*/
+    }
   }
 
   const vnBlobToSend = vnBlob || null;
