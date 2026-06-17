@@ -329,17 +329,19 @@ body {
 #video-live {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
   transform: scaleX(-1);
+  background: #000;
 }
 #video-playback {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: none;
   position: absolute;
   inset: 0;
+  background: #000;
 }
 
 /* Floral frame overlay */
@@ -1452,7 +1454,8 @@ function showPlayback(url, type) {
     if (!img) {
       img = document.createElement('img');
       img.id = 'photo-preview';
-      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
+      img.style.cssText =
+'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:2;';
       document.querySelector('.camera-wrap').appendChild(img);
     }
     img.src = url;
