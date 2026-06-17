@@ -329,19 +329,17 @@ body {
 #video-live {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
   transform: scaleX(-1);
-  background: #000;
 }
 #video-playback {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: none;
   position: absolute;
   inset: 0;
-  background: #000;
 }
 
 /* Floral frame overlay */
@@ -1277,7 +1275,6 @@ function closeCameraModal() {
   document.getElementById('fab').classList.remove('open');
 }
 
-
 // ── Camera ────────────────────────────────────────────────
 async function startCamera() {
   try {
@@ -1318,7 +1315,6 @@ async function startCamera() {
   }
 }
 
-
 async function flipCamera() {
   facingMode = facingMode === 'user' ? 'environment' : 'user';
   // Mirror only front cam
@@ -1347,22 +1343,50 @@ function handleShutter() {
 // ── Photo ─────────────────────────────────────────────────
 function takePhoto() {
   const video = document.getElementById('video-live');
-  const canvas = document.createElement('canvas');
 
-  // Use portrait resolution
-  const vw = video.videoWidth  || 1080;
-  const vh = video.videoHeight || 1920;
-  canvas.width  = vw;
-  canvas.height = vh;
+  // Resolusi asli video dari kamera (bisa berbeda rasio dari 9:16)
+  const srcW = video.videoWidth  || 1080;
+  const srcH = video.videoHeight || 1920;
+
+  // Target rasio output HARUS sama dengan rasio frame PNG (9:16)
+  // supaya hasil foto persis sama seperti yang terlihat di preview
+  // (preview pakai object-fit: cover pada kotak 9:16).
+  const TARGET_RATIO = 9 / 16;
+  const srcRatio = srcW / srcH;
+
+  // Hitung area crop dari video sumber agar rasionya jadi 9:16,
+  // meniru perilaku CSS object-fit: cover (crop dari tengah).
+  let cropW, cropH, cropX, cropY;
+  if (srcRatio > TARGET_RATIO) {
+    // Video sumber lebih "lebar" dari 9:16 → crop kiri-kanan
+    cropH = srcH;
+    cropW = srcH * TARGET_RATIO;
+    cropX = (srcW - cropW) / 2;
+    cropY = 0;
+  } else {
+    // Video sumber lebih "tinggi/sempit" dari 9:16 → crop atas-bawah
+    cropW = srcW;
+    cropH = srcW / TARGET_RATIO;
+    cropX = 0;
+    cropY = (srcH - cropH) / 2;
+  }
+
+  // Output canvas pakai resolusi tetap & rasio pas 9:16
+  // agar selalu match dengan frame PNG (1080x1920).
+  const outW = 1080;
+  const outH = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width  = outW;
+  canvas.height = outH;
 
   const ctx = canvas.getContext('2d');
   ctx.save();
   if (facingMode === 'user') {
+    // Mirror horizontal untuk kamera depan
+    ctx.translate(outW, 0);
     ctx.scale(-1, 1);
-    ctx.drawImage(video, -vw, 0, vw, vh);
-  } else {
-    ctx.drawImage(video, 0, 0, vw, vh);
   }
+  ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, outW, outH);
   ctx.restore();
 
   // Flash
@@ -1454,8 +1478,7 @@ function showPlayback(url, type) {
     if (!img) {
       img = document.createElement('img');
       img.id = 'photo-preview';
-      img.style.cssText =
-'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:2;';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
       document.querySelector('.camera-wrap').appendChild(img);
     }
     img.src = url;
@@ -1495,7 +1518,6 @@ function retake() {
   document.getElementById('mode-photo').disabled = false;
   closeNameModal();
 }
-
 
 // ── Name modal ────────────────────────────────────────────
 function openNameModal() {
