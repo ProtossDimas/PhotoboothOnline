@@ -1261,20 +1261,20 @@ async function openCameraModal() {
 }
 
 function closeCameraModal() {
-  // Hentikan semua track kamera — SELALU, baik ada capturedBlob atau tidak
+  if (capturedBlob) {
+    openNameModal();
+    return;
+  }
+  // Hentikan semua track kamera
   if (stream) {
     stream.getTracks().forEach(t => t.stop());
     stream = null;
   }
-  cameraStarted = false;
+  cameraStarted = false;  // ← Reset flag agar bisa start ulang
   document.getElementById('camera-modal').classList.remove('open');
   document.getElementById('fab').classList.remove('open');
-  // Jika sudah ada capture, buka name modal
-  retake();
-  if (capturedBlob) {
-    openNameModal();
-  }
 }
+
 
 // ── Camera ────────────────────────────────────────────────
 async function startCamera() {
@@ -1282,15 +1282,19 @@ async function startCamera() {
     if (stream) stream.getTracks().forEach(t => t.stop());
 
     const constraints = {
-  video: true,
-  audio: false
-};
+      video: {
+        facingMode,
+        width:  { ideal: 720, max: 1080 },
+        height: { ideal: 1280, max: 1920 },
+        aspectRatio: { ideal: 9/16 },
+      },
+      audio: true,
+    };
 
-   stream = await navigator.mediaDevices.getUserMedia(constraints);
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+    // ... kode zoom tetap sama ...
+    document.getElementById('video-live').srcObject = stream;
 
-const video = document.getElementById('video-live');
-video.srcObject = stream;
-await video.play();
   } catch (err) {
     // Fallback 1: tanpa aspectRatio (fix OverconstrainedError)
     try {
@@ -1305,13 +1309,13 @@ await video.play();
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: true });
         document.getElementById('video-live').srcObject = stream;
       } catch (err3) {
-  showToast(err3.name + ' : ' + err3.message, true);
-  console.error(err3);
-}
+        showToast('Akses kamera ditolak. Izinkan di pengaturan browser.', true);
+        console.error('[Camera] Semua fallback gagal:', err3);
       }
     }
   }
 }
+
 
 async function flipCamera() {
   facingMode = facingMode === 'user' ? 'environment' : 'user';
@@ -1472,6 +1476,7 @@ function showPlayback(url, type) {
 
 // ── Retake ────────────────────────────────────────────────
 function retake() {
+  // Reset VN recorder when retaking
   if (vnIsRec) stopVNRecording();
   resetVNRecorder();
   capturedBlob = null;
@@ -1486,9 +1491,8 @@ function retake() {
   document.getElementById('mode-video').disabled = false;
   document.getElementById('mode-photo').disabled = false;
   closeNameModal();
-  // ← TAMBAHKAN INI: restart stream kamera
-  startCamera();
 }
+
 
 // ── Name modal ────────────────────────────────────────────
 function openNameModal() {
