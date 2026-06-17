@@ -1281,19 +1281,15 @@ async function startCamera() {
     if (stream) stream.getTracks().forEach(t => t.stop());
 
     const constraints = {
-      video: {
-        facingMode,
-        width:  { ideal: 720, max: 1080 },
-        height: { ideal: 1280, max: 1920 },
-        aspectRatio: { ideal: 9/16 },
-      },
-      audio: true,
-    };
+  video: true,
+  audio: false
+};
 
-    stream = await navigator.mediaDevices.getUserMedia(constraints);
-    // ... kode zoom tetap sama ...
-    document.getElementById('video-live').srcObject = stream;
+   stream = await navigator.mediaDevices.getUserMedia(constraints);
 
+const video = document.getElementById('video-live');
+video.srcObject = stream;
+await video.play();
   } catch (err) {
     // Fallback 1: tanpa aspectRatio (fix OverconstrainedError)
     try {
@@ -1308,8 +1304,9 @@ async function startCamera() {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: true });
         document.getElementById('video-live').srcObject = stream;
       } catch (err3) {
-        showToast('Akses kamera ditolak. Izinkan di pengaturan browser.', true);
-        console.error('[Camera] Semua fallback gagal:', err3);
+  showToast(err3.name + ' : ' + err3.message, true);
+  console.error(err3);
+}
       }
     }
   }
