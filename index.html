@@ -1394,11 +1394,22 @@ function takePhoto() {
   flash.classList.add('flash');
   setTimeout(() => flash.classList.remove('flash'), 150);
 
-  canvas.toBlob(blob => {
-    capturedBlob = blob;
-    capturedType = 'photo';
-    showPlayback(URL.createObjectURL(blob), 'photo');
-  }, 'image/jpeg', 0.92);
+ canvas.toBlob(async blob => {
+  if (!blob) return;
+
+  // Gabungkan foto dengan frame PNG
+  const framedBlob = await composePhotoWithFrame(blob);
+
+  capturedBlob = framedBlob;
+  capturedType = 'photo';
+
+  // Preview yang tampil sudah termasuk frame
+  showPlayback(
+    URL.createObjectURL(framedBlob),
+    'photo'
+  );
+
+}, 'image/jpeg', 0.92);
 }
 
 // ── Video countdown → record ──────────────────────────────
@@ -1544,12 +1555,12 @@ async function confirmSend() {
   const typeToSend = capturedType;
 
   // For photos: composite frame overlay onto the image before uploading
-  if (typeToSend === 'photo') {
+ /* if (typeToSend === 'photo') {
     try {
       blobToSend = await composePhotoWithFrame(blobToSend);
     } catch (e) {
       console.warn('Frame composite failed, using original:', e);
-    }
+    }*/
   }
 
   const vnBlobToSend = vnBlob || null;
