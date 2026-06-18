@@ -318,7 +318,7 @@ rgba(0,0,0,0.2); }
 #video-live {
  width: 100%;
  height: 100%;
- object-fit: cover;
+ object-fit: contain; /* contain = tidak crop, zoom normal seperti kamera biasa */
  display: block;
  transform: scaleX(-1);
 }
@@ -3652,20 +3652,20 @@ async function startCamera() {
  const constraints = {
  video: {
  facingMode,
- width: { ideal: 720, max: 1080 },
- height: { ideal: 1280, max: 1920 },
- aspectRatio: { ideal: 9/16 },
+ // Gunakan resolusi native kamera tanpa memaksa aspect ratio
+ // agar tidak terjadi zoom-in (mirip kamera bawaan HP)
+ width: { ideal: 1280 },
+ height: { ideal: 720 },
  },
  audio: true,
  };
  stream = await navigator.mediaDevices.getUserMedia(constraints);
- // ... kode zoom tetap sama ...
  document.getElementById('video-live').srcObject = stream;
  } catch (err) {
- // Fallback 1: tanpa aspectRatio (fix OverconstrainedError)
+ // Fallback 1: resolusi lebih rendah
  try {
  stream = await navigator.mediaDevices.getUserMedia({
- video: { facingMode, width: { ideal: 720 }, height: { ideal: 1280 } },
+ video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
  audio: true
  });
  document.getElementById('video-live').srcObject = stream;
