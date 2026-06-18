@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>The Wedding of Dimas & Nia 窶� Video Booth</title>
+<title>The Wedding of Dimas & Nia - Video Booth</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
 :root {
@@ -39,11 +39,9 @@ body {
  flex-direction: column;
  overflow-x: hidden;
 }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- HEADER
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   HEADER
+   ------------------------------------------------------------ */
 .site-header {
  background: var(--white);
  border-bottom: 1px solid var(--red-border);
@@ -95,11 +93,9 @@ body {
  opacity: 0.8;
  margin-top: 2px;
 }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- GALLERY 窶� full-width layout
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   GALLERY - full-width layout
+   ------------------------------------------------------------ */
 .app-body {
  flex: 1;
  display: flex;
@@ -140,7 +136,7 @@ body {
  overflow-y: auto;
  padding: 0.875rem;
  background: var(--cream);
- /* Portrait grid 窶� 3 columns on desktop, 2 on mobile */
+ /* Portrait grid - 3 columns on desktop, 2 on mobile */
  display: grid;
  grid-template-columns: repeat(3, 1fr);
  grid-auto-rows: max-content;
@@ -166,7 +162,7 @@ body {
 }
 .gallery-empty svg { width: 44px; height: 44px; opacity: 0.35; color: var(--red-primary); }
 .gallery-empty p { font-size: 0.82rem; line-height: 1.5; opacity: 0.7; }
-/* Gallery card 窶� PORTRAIT 9:16 */
+/* Gallery card - PORTRAIT 9:16 */
 .g-card {
  background: var(--white);
  border: 1px solid rgba(139,26,26,0.15);
@@ -243,11 +239,9 @@ border-top-color: var(--red-primary); border-radius: 50%; animation: spin 0.8s l
 infinite; }
 .g-uploading span { font-size: 0.65rem; color: var(--red-light); }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- FAB 窶� Floating Action Button
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   FAB - Floating Action Button
+   ------------------------------------------------------------ */
 .fab {
  position: fixed;
  bottom: 2rem;
@@ -279,11 +273,9 @@ rgba(0,0,0,0.2); }
 }
 @keyframes fabPulse { 0%,100%{opacity:0.5;transform:scale(1)} 50%
 {opacity:0;transform:scale(1.25)} }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- CAMERA MODAL
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   CAMERA MODAL
+   ------------------------------------------------------------ */
 .camera-modal {
  position: fixed; inset: 0;
  background: rgba(0,0,0,0.92);
@@ -511,11 +503,9 @@ transition:stroke-dashoffset 1s linear; }
 .btn-icon:hover { border-color: var(--red-light); color: var(--red-light); }
 .btn-icon svg { width: 18px; height: 18px; }
 .btn-icon.hidden { visibility: hidden; pointer-events: none; }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- NAME PROMPT MODAL
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   NAME PROMPT MODAL
+   ------------------------------------------------------------ */
 .name-modal {
  position: fixed; inset: 0;
  background: rgba(0,0,0,0.75);
@@ -615,11 +605,9 @@ transition:stroke-dashoffset 1s linear; }
  transition: border-color 0.2s, color 0.2s;
 }
 .btn-retake-modal:hover { border-color: rgba(139,26,26,0.4); color: var(--red-primary); }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- PLAYBACK MODAL (galeri)
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   PLAYBACK MODAL (galeri)
+   ------------------------------------------------------------ */
 .play-modal {
  position: fixed; inset: 0;
  background: rgba(0,0,0,0.88);
@@ -711,11 +699,9 @@ transition:stroke-dashoffset 1s linear; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.err { background: #fff5f5; border-color: rgba(160,48,48,0.4); color: #A03030; }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- RESPONSIVE
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   RESPONSIVE
+   ------------------------------------------------------------ */
 @media (max-width: 680px) {
  .gallery-scroll {
  grid-template-columns: repeat(2, 1fr);
@@ -736,12 +722,10 @@ transition:stroke-dashoffset 1s linear; }
  grid-template-columns: repeat(4, 1fr);
  }
 }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- CAPTURE CHOICE SHEET
- Muncul saat FAB ditekan 窶� pilih native cam atau in-browser cam
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   CAPTURE CHOICE SHEET
+   Muncul saat FAB ditekan - pilih native cam atau in-browser cam
+   ------------------------------------------------------------ */
 .choice-modal {
  position: fixed; inset: 0;
  background: rgba(0,0,0,0.75);
@@ -809,11 +793,9 @@ transition:stroke-dashoffset 1s linear; }
 .choice-cancel:hover { border-color: rgba(139,26,26,0.35); color: var(--red-primary); }
 /* Hidden native file inputs */
 #native-video-input, #native-photo-input { display: none; }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- VOICE NOTE RECORDER (in name modal)
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   VOICE NOTE RECORDER (in name modal)
+   ------------------------------------------------------------ */
 .vn-section {
  margin-bottom: 1rem;
  display: flex;
@@ -888,11 +870,9 @@ transition:stroke-dashoffset 1s linear; }
  height: 4px;
  transition: height 0.1s;
 }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- DOWNLOAD & SHARE BUTTONS (playback modal)
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   DOWNLOAD & SHARE BUTTONS (playback modal)
+   ------------------------------------------------------------ */
 .play-actions {
  display: flex;
  gap: 0.5rem;
@@ -922,11 +902,9 @@ background: rgba(139,26,26,0.08); }
  color: white;
 }
 .btn-action.primary:hover { opacity: 0.88; }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- COPYRIGHT FOOTER
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   COPYRIGHT FOOTER
+   ------------------------------------------------------------ */
 .site-footer {
  background: var(--white);
  border-top: 1px solid var(--red-border);
@@ -946,16 +924,14 @@ background: rgba(139,26,26,0.08); }
  color: var(--red-primary);
  font-weight: 400;
 }
-/* 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶
-武
- FRAME CANVAS (offscreen composite)
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-*/
+/* ------------------------------------------------------------
+   FRAME CANVAS (offscreen composite)
+   ------------------------------------------------------------ */
 #frame-canvas { display: none; }
 </style>
 </head>
 <body>
-<!-- 笊絶武 HEADER 笊絶武 -->
+<!-- HEADER -->
 <header class="site-header">
  <p class="header-eyebrow">Wedding Video Booth</p>
  <div class="header-ornament">
@@ -966,9 +942,9 @@ background: rgba(139,26,26,0.08); }
  <div class="logo-main">The Wedding of Dimas <span class="amp">&amp;</span> Nia</div>
  <p class="header-tagline">leaves a moment · treasures a memory</p>
 </header>
-<!-- 笊絶武 APP BODY 笊絶武 -->
+<!-- APP BODY -->
 <div class="app-body">
- <!-- 笏笏 GALLERY PANEL (full width) 笏笏 -->
+ <!-- GALLERY PANEL (full width) -->
  <div class="gallery-panel">
  <div class="gallery-header">
  <div class="gallery-title">Momen Terkini</div>
@@ -980,30 +956,30 @@ background: rgba(139,26,26,0.08); }
  <path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.876v6.248a1 1 0 0 1-1.447.894L15 14M3
 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/>
  </svg>
- <p>Belum ada video.<br>Jadilah yang pertama! 脂</p>
+ <p>Belum ada video.<br>Jadilah yang pertama! 🎉</p>
  </div>
  </div>
  </div>
 </div>
-<!-- 笊絶武 FOOTER 笊絶武 -->
+<!-- FOOTER -->
 <footer class="site-footer">
  <p class="footer-copyright">© 2026 <span class="footer-names">Dimas &amp; Nia</span> ·
 All rights reserved</p>
 </footer>
-<!-- 笊絶武 FAB 窶� Floating Action Button 笊絶武 -->
+<!-- FAB - Floating Action Button -->
 <button class="fab" id="fab" onclick="openCaptureChoice()" title="Rekam Momen">
  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
  <line x1="12" y1="5" x2="12" y2="19"/>
  <line x1="5" y1="12" x2="19" y2="12"/>
  </svg>
 </button>
-<!-- 笊絶武 CAMERA MODAL 笊絶武 -->
+<!-- CAMERA MODAL -->
 <div class="camera-modal" id="camera-modal">
  <div class="camera-box">
  <div class="camera-wrap">
  <video id="video-live" autoplay muted playsinline></video>
  <video id="video-playback" playsinline controls></video>
- <!-- PNG Frame Overlay (Frame_Photobooth.png 窶� embedded base64) -->
+ <!-- PNG Frame Overlay (Frame_Photobooth.png - embedded base64) -->
  <div class="frame-overlay">
  <img
 src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQw
@@ -3218,10 +3194,10 @@ d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg
  </div>
  </div>
 </div>
-<!-- 笊絶武 NAME PROMPT MODAL 笊絶武 -->
+<!-- NAME PROMPT MODAL -->
 <div class="name-modal" id="name-modal">
  <div class="name-box">
- <div class="name-box-title">Simpan Momenmu 笨ｨ</div>
+ <div class="name-box-title">Simpan Momenmu ✨</div>
  <p class="name-box-sub">Isi nama &amp; pesan singkat untuk Dimas &amp; Nia</p>
  <input class="name-input" id="input-name" type="text" placeholder="Nama kamu"
 maxlength="40" autocomplete="off"/>
@@ -3229,7 +3205,7 @@ maxlength="40" autocomplete="off"/>
 (opsional)..."></textarea>
  <!-- Voice Note Recorder -->
  <div class="vn-section">
- <span class="vn-label">児 Voice Note (opsional)</span>
+ <span class="vn-label">🎙 Voice Note (opsional)</span>
  <div class="vn-controls">
  <button class="btn-vn-record" id="btn-vn-record" onclick="toggleVNRecording()">
  <svg id="vn-icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -3260,7 +3236,7 @@ x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></s
  <button class="btn-retake-modal" onclick="closeNameModal()">Rekam Ulang</button>
  </div>
 </div>
-<!-- 笊絶武 PLAYBACK MODAL 笊絶武 -->
+<!-- PLAYBACK MODAL -->
 <div class="play-modal" id="play-modal" onclick="handlePlayModalClick(event)">
  <div class="play-box">
  <div class="play-video-wrap">
@@ -3301,21 +3277,21 @@ y2="10.49"/></svg>
 </div>
 <audio id="vn-audio"></audio>
 <canvas id="frame-canvas"></canvas>
-<!-- 笊絶武 CAPTURE CHOICE SHEET 笊絶武 -->
-<!-- Muncul saat FAB ditekan 窶� user pilih: native cam HP atau in-browser cam -->
+<!-- CAPTURE CHOICE SHEET -->
+<!-- Muncul saat FAB ditekan - user pilih: native cam HP atau in-browser cam -->
 <div class="choice-modal" id="choice-modal" onclick="handleChoiceBackdrop(event)">
  <div class="choice-sheet">
  <div class="choice-handle"></div>
- <div class="choice-title">Abadikan Momen 笨ｨ</div>
+ <div class="choice-title">Abadikan Momen ✨</div>
  <p class="choice-sub">Pilih cara merekam untuk Dimas &amp; Nia</p>
  <div class="choice-grid">
- <!-- Native: buka kamera bawaan HP 窶� zoom normal, kualitas terbaik -->
+ <!-- Native: buka kamera bawaan HP - zoom normal, kualitas terbaik -->
  <label class="choice-btn" for="native-video-input">
  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
  <path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.876v6.248a1 1 0 0 1-1.447.894L15 14"/>
  <rect x="3" y="6" width="12" height="12" rx="2"/>
  </svg>
- <span class="c-label">汐 Video</span>
+ <span class="c-label">🎬 Video</span>
  <span class="c-sub">Rekam via kamera HP</span>
  </label>
  <label class="choice-btn" for="native-photo-input">
@@ -3324,17 +3300,17 @@ y2="10.49"/></svg>
 0 1 2 2z"/>
  <circle cx="12" cy="13" r="4"/>
  </svg>
- <span class="c-label">萄 Foto</span>
+ <span class="c-label">📸 Foto</span>
  <span class="c-sub">Foto via kamera HP</span>
  </label>
- <!-- In-browser cam 窶� pakai kamera WebRTC dalam web -->
+ <!-- In-browser cam - pakai kamera WebRTC dalam web -->
  <button class="choice-btn full" onclick="chooseInBrowser()">
  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
  <rect x="2" y="3" width="20" height="14" rx="2"/>
  <path d="M8 21h8M12 17v4"/>
  </svg>
  <div class="c-text">
- <div class="c-label">倹 Kamera In-Browser</div>
+ <div class="c-label">🌐 Kamera In-Browser</div>
  <div class="c-sub">Rekam langsung di halaman web ini (ada countdown &amp; floral
 frame)</div>
  </div>
@@ -3343,18 +3319,15 @@ frame)</div>
  <button class="choice-cancel" onclick="closeChoiceSheet()">Batal</button>
  </div>
 </div>
-<!-- Native file inputs 窶� trigger kamera bawaan HP (tidak ada zoom issue) -->
+<!-- Native file inputs - trigger kamera bawaan HP (tidak ada zoom issue) -->
 <input type="file" id="native-video-input" accept="video/*" capture="environment">
 <input type="file" id="native-photo-input" accept="image/*" capture="environment">
 <div class="toast" id="toast"></div>
-<!-- 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊
-絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
- JAVASCRIPT
-笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊
-絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武 -->
+<!-- ------------------------------------------------------------
+     JAVASCRIPT
+     ------------------------------------------------------------ -->
 <script>
-// 笏笏 State 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- State ----
 let stream = null;
 let facingMode = 'user';
 let currentMode = 'video';
@@ -3382,8 +3355,7 @@ let vnTimer = null;
 let vnAnimFrame = null;
 let vnAnalyser = null;
 let vnDataArr = null;
-// 笏笏 Init 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Init ----
 window.addEventListener('DOMContentLoaded', async () => {
  loadGalleryFromServer();
  // Wire native camera inputs
@@ -3402,8 +3374,7 @@ showPlayback(URL.createObjectURL(file), 'photo'); }
  closeChoiceSheet();
  });
 });
-// 笏笏 Capture Choice Sheet 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏
+// ---- Capture Choice Sheet ----
 function openCaptureChoice() {
  document.getElementById('choice-modal').classList.add('open');
  document.getElementById('fab').classList.add('open');
@@ -3419,8 +3390,7 @@ function chooseInBrowser() {
  closeChoiceSheet();
  openCameraModal();
 }
-// 笏笏 Camera Modal 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Camera Modal ----
 async function openCameraModal() {
  document.getElementById('camera-modal').classList.add('open');
  document.getElementById('fab').classList.add('open');
@@ -3441,12 +3411,11 @@ function closeCameraModal() {
  stream.getTracks().forEach(t => t.stop());
  stream = null;
  }
- cameraStarted = false; // 竊� Reset flag agar bisa start ulang
+ cameraStarted = false; // → Reset flag agar bisa start ulang
  document.getElementById('camera-modal').classList.remove('open');
  document.getElementById('fab').classList.remove('open');
 }
-// 笏笏 Camera 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Camera ----
 async function startCamera() {
  try {
  if (stream) stream.getTracks().forEach(t => t.stop());
@@ -3490,8 +3459,7 @@ async function flipCamera() {
 'scaleX(-1)' : 'scaleX(1)';
  await startCamera();
 }
-// 笏笏 Mode 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Mode ----
 function setMode(mode) {
  currentMode = mode;
  document.getElementById('mode-video').classList.toggle('active', mode === 'video');
@@ -3499,8 +3467,7 @@ function setMode(mode) {
  if (isRecording) stopRecording();
  retake();
 }
-// 笏笏 Shutter 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Shutter ----
 function handleShutter() {
  if (currentMode === 'video') {
  isRecording ? stopRecording() : startCountdownThenRecord();
@@ -3508,8 +3475,7 @@ function handleShutter() {
  takePhoto();
  }
 }
-// 笏笏 Photo 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Photo ----
 function takePhoto() {
  const video = document.getElementById('video-live');
  const canvas = document.createElement('canvas');
@@ -3537,8 +3503,7 @@ function takePhoto() {
  showPlayback(URL.createObjectURL(blob), 'photo');
  }, 'image/jpeg', 0.92);
 }
-// 笏笏 Video countdown 竊� record 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏
+// ---- Video countdown → record ----
 function startCountdownThenRecord() {
  let n = 3;
  const overlay = document.getElementById('countdown-overlay');
@@ -3597,8 +3562,7 @@ function updateRing(s) {
  document.getElementById('ring-fill').style.strokeDashoffset = offset;
  document.getElementById('ring-num').textContent = MAX_SECS - s;
 }
-// 笏笏 Show captured preview 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏
+// ---- Show captured preview ----
 function showPlayback(url, type) {
  const live = document.getElementById('video-live');
  const playback = document.getElementById('video-playback');
@@ -3627,8 +3591,7 @@ function showPlayback(url, type) {
  document.getElementById('mode-photo').disabled = true;
  openNameModal();
 }
-// 笏笏 Retake 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Retake ----
 function retake() {
  // Reset VN recorder when retaking
  if (vnIsRec) stopVNRecording();
@@ -3646,8 +3609,7 @@ function retake() {
  document.getElementById('mode-photo').disabled = false;
  closeNameModal();
 }
-// 笏笏 Name modal 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Name modal ----
 function openNameModal() {
  document.getElementById('name-modal').classList.add('open');
  setTimeout(() => document.getElementById('input-name').focus(), 300);
@@ -3680,18 +3642,18 @@ async function confirmSend() {
  const id = Date.now();
  const ts = new Date().toISOString();
  const localUrl = URL.createObjectURL(blobToSend);
- // 竭� Add to gallery immediately
+ // ① Add to gallery immediately
  const entry = { id, name, msg, ts, localUrl, type: typeToSend, vnUrl: '', uploading: true
 };
  gallery.unshift(entry);
  renderGallery();
- // 竭｡ Close camera + reset
+ // ② Close camera + reset
  document.getElementById('camera-modal').classList.remove('open');
  document.getElementById('fab').classList.remove('open');
  retake();
  document.getElementById('input-name').value = '';
  document.getElementById('input-msg').value = '';
- // 竭｢ Upload in background
+ // ③ Upload in background
  try {
  const fd = new FormData();
  fd.append('name', name);
@@ -3701,7 +3663,7 @@ async function confirmSend() {
  fd.append(fieldname, blobToSend, filename);
  if (vnBlobToSend) fd.append('vn', vnBlobToSend, 'voicenote.webm');
  const res = await fetch('/api/submit', { method: 'POST', body: fd });
- // Safe JSON parse 窶� server may return HTML error page or empty body
+ // Safe JSON parse - server may return HTML error page or empty body
  let data = {};
  try {
  const rawText = await res.text();
@@ -3724,7 +3686,7 @@ async function confirmSend() {
  if (data.media_type) gallery[idx].type = data.media_type;
  renderGallery();
  }
- showToast('Tersimpan! 脂');
+ showToast('Tersimpan! 🎉');
  } catch (err) {
  const idx = gallery.findIndex(e => e.id === id);
  if (idx >= 0) {
@@ -3735,8 +3697,7 @@ async function confirmSend() {
  showToast('Upload gagal: ' + (err.message || 'coba lagi'), true);
  }
 }
-// 笏笏 Gallery render 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Gallery render ----
 function renderGallery() {
  const scroll = document.getElementById('gallery-scroll');
  const empty = document.getElementById('gallery-empty');
@@ -3762,7 +3723,7 @@ function renderGallery() {
  const isLocalBlob = thumbSrc && thumbSrc.startsWith('blob:');
  let thumbEl;
  if (isLocalBlob && !isPhoto) {
- // Video lokal sebelum upload 窶� tampilkan placeholder gelap dengan icon
+ // Video lokal sebelum upload - tampilkan placeholder gelap dengan icon
  thumbEl = `<div style="width:100%;height:100%;background:#111;display:flex;alignitems:center;justify-content:center;">
  <svg width="40" height="40" viewBox="0 0 24 24" fill="rgba(255,255,255,0.3)">
 <polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -3790,7 +3751,7 @@ function renderGallery() {
  ${e.vnUrl ? `<span class="g-vn-dot"><svg viewBox="0 0 24 24" fill="none"
 stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3
 0 0 1 3-3z"/></svg>VN</span>` : ''}
- ${e.uploadFailed ? '<span style="color:#f08080">笞� Gagal upload</span>' : ''}
+ ${e.uploadFailed ? '<span style="color:#f08080">⚠️ Gagal upload</span>' : ''}
  </div>
  </div>
  </div>`;
@@ -3798,8 +3759,7 @@ stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 
  scroll.appendChild(card);
  });
 }
-// 笏笏 Load gallery from server 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏
+// ---- Load gallery from server ----
 async function loadGalleryFromServer() {
  try {
  const res = await fetch('/api/gallery');
@@ -3813,13 +3773,13 @@ async function loadGalleryFromServer() {
  } catch (_) {}
  if (!res.ok || data.error) {
  console.error('[Gallery] API error:', data.error || res.status);
- document.getElementById('gallery-count').textContent = 'Gagal memuat 窶� ' +
+ document.getElementById('gallery-count').textContent = 'Gagal memuat - ' +
 (data.error || 'coba refresh');
  renderGallery();
  return;
  }
  const serverEntries = (data.entries || []).map(e => ({
- // FIX: Gunakan timestamp sebagai ID unik 窶� bukan indeks array yang berubah tiap load
+ // FIX: Gunakan timestamp sebagai ID unik - bukan indeks array yang berubah tiap load
  id: 'srv_' + e.timestamp,
  name: e.name,
  msg: e.message,
@@ -3844,8 +3804,7 @@ async function loadGalleryFromServer() {
  renderGallery();
  }
 }
-// 笏笏 Playback modal 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Playback modal ----
 function openPlayModal(idx) {
  const e = gallery[idx];
  if (!e || e.uploading) return;
@@ -3873,14 +3832,14 @@ function openPlayModal(idx) {
  img.src = src;
  img.style.display = 'block';
  } else if (src && src.startsWith('blob:')) {
- // VIDEO LOKAL (belum upload ke Drive) 窶� pakai <video> biasa
+ // VIDEO LOKAL (belum upload ke Drive) - pakai <video> biasa
  const img = document.getElementById('play-photo-img');
  if (img) img.style.display = 'none';
  vid.style.display = 'block';
  vid.src = src;
  vid.play().catch(() => {});
  } else {
- // VIDEO dari Google Drive 窶� pakai <iframe> embed player
+ // VIDEO dari Google Drive - pakai <iframe> embed player
  const img = document.getElementById('play-photo-img');
  if (img) img.style.display = 'none';
  vid.style.display = 'none';
@@ -3947,21 +3906,20 @@ height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Jeda VN`;
 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg> Putar VN`;
  };
 }
-// 笏笏 Download & Share 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Download & Share ----
 async function downloadMedia() {
  const e = currentEntry;
  if (!e) return;
  const src = e.serverUrl || e.localUrl;
  if (!src) return showToast('URL tidak tersedia', true);
  if (src.startsWith('blob:')) {
- // Local blob 窶� direct download
+ // Local blob - direct download
  const a = document.createElement('a');
  a.href = src;
  a.download = e.type === 'photo' ? `foto_${e.name}.jpg` : `video_${e.name}.webm`;
  a.click();
  } else {
- // Drive URL 窶� open in new tab (direct download from Drive)
+ // Drive URL - open in new tab (direct download from Drive)
  // For photos: use /uc?export=download link
  const driveId = e.driveId;
  if (driveId) {
@@ -3978,7 +3936,7 @@ async function shareMedia() {
  const src = e.serverUrl || e.localUrl;
  const shareData = {
  title: 'The Wedding of Dimas & Nia',
- text: `Momen dari ${e.name} di pernikahan Dimas & Nia 瀦${e.msg ? '\n"' + e.msg + '"' :
+ text: `Momen dari ${e.name} di pernikahan Dimas & Nia 💕${e.msg ? '\n"' + e.msg + '"' :
 ''}`,
  url: src && !src.startsWith('blob:') ? src : window.location.href,
  };
@@ -4011,8 +3969,7 @@ async function shareMedia() {
  }
  }
 }
-// 笏笏 Photo Frame Composite 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏
+// ---- Photo Frame Composite ----
 // Menggunakan PNG frame asli (Frame_Photobooth.png) yang di-embed sebagai base64
 const FRAME_PNG_DATA_URI =
 `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABt
@@ -6202,7 +6159,7 @@ async function composePhotoWithFrame(photoBlob) {
  // 2. Draw PNG frame overlay di atas foto
  try {
  const frameImg = await getFramePngImg();
- // Frame PNG 1080ﾃ�1920 窶� scale to match photo size
+ // Frame PNG 1080×1920 - scale to match photo size
  ctx.drawImage(frameImg, 0, 0, W, H);
  } catch (frameErr) {
  console.warn('Frame overlay gagal, pakai foto original:', frameErr);
@@ -6224,8 +6181,7 @@ async function composePhotoWithFrame(photoBlob) {
  img.src = url;
  });
 }
-// 笏笏 Voice Note Recording 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏
+// ---- Voice Note Recording ----
 async function toggleVNRecording() {
  if (vnIsRec) {
  await stopVNRecording();
@@ -6306,7 +6262,7 @@ function updateVNUI(state) {
  if (state === 'recording') {
  btn.classList.add('recording');
  status.className = 'vn-status recording';
- status.textContent = '閥 Merekam...';
+ status.textContent = '🔴 Merekam...';
  micIcon.style.display = 'none';
  stopIcon.style.display = 'block';
  waveform.classList.add('visible');
@@ -6314,7 +6270,7 @@ function updateVNUI(state) {
  } else if (state === 'recorded') {
  btn.classList.remove('recording');
  status.className = 'vn-status recorded';
- status.textContent = '笨� Voice note siap';
+ status.textContent = '✅ Voice note siap';
  micIcon.style.display = 'block';
  stopIcon.style.display = 'none';
  waveform.classList.remove('visible');
@@ -6344,14 +6300,13 @@ function resetVNRecorder() {
  vnSecs = 0;
  updateVNUI('idle');
 }
-// 笏笏 Helpers 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
-// 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+// ---- Helpers ----
 function escHtml(s) {
  return
 String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function fmtDate(ts) {
- if (!ts) return '窶�';
+ if (!ts) return '-';
  return new Date(ts).toLocaleString('id-ID', { day:'numeric', month:'short',
 year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
