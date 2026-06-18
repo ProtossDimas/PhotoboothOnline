@@ -6959,7 +6959,7 @@ async function loadGalleryFromServer() {
  const serverEntries = (data.entries || []).map(e => ({
  // FIX: Gunakan timestamp sebagai ID unik - bukan indeks array yang berubah tiap load
  id: 'srv_' + e.timestamp,
- name: e.name,
+ name: e.name || 'Tamu',
  msg: e.message,
  ts: e.timestamp,
  localUrl: e.video_url,
