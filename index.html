@@ -967,7 +967,7 @@ background: rgba(139,26,26,0.08); }
 All rights reserved</p>
 </footer>
 <!-- FAB - Floating Action Button -->
-<button class="fab" id="fab" onclick="openCaptureChoice()" title="Rekam Momen">
+<button class="fab" id="fab" onclick="openCameraModal()" title="Rekam Momen">
  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
  <line x1="12" y1="5" x2="12" y2="19"/>
  <line x1="5" y1="12" x2="19" y2="12"/>
@@ -3507,52 +3507,7 @@ y2="10.49"/></svg>
 </div>
 <audio id="vn-audio"></audio>
 <canvas id="frame-canvas"></canvas>
-<!-- CAPTURE CHOICE SHEET -->
-<!-- Muncul saat FAB ditekan - user pilih: native cam HP atau in-browser cam -->
-<div class="choice-modal" id="choice-modal" onclick="handleChoiceBackdrop(event)">
- <div class="choice-sheet">
- <div class="choice-handle"></div>
- <div class="choice-title">Abadikan Momen ✨</div>
- <p class="choice-sub">Pilih cara merekam untuk Dimas &amp; Nia</p>
- <div class="choice-grid">
- <!-- Native: buka kamera bawaan HP - zoom normal, kualitas terbaik -->
- <label class="choice-btn" for="native-video-input">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
- <path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.876v6.248a1 1 0 0 1-1.447.894L15 14"/>
- <rect x="3" y="6" width="12" height="12" rx="2"/>
- </svg>
- <span class="c-label">🎬 Video</span>
- <span class="c-sub">Rekam via kamera HP</span>
- </label>
- <label class="choice-btn" for="native-photo-input">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
- <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0
-0 1 2 2z"/>
- <circle cx="12" cy="13" r="4"/>
- </svg>
- <span class="c-label">📸 Foto</span>
- <span class="c-sub">Foto via kamera HP</span>
- </label>
- <!-- In-browser cam - pakai kamera WebRTC dalam web -->
- <button class="choice-btn full" onclick="chooseInBrowser()">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
- <rect x="2" y="3" width="20" height="14" rx="2"/>
- <path d="M8 21h8M12 17v4"/>
- </svg>
- <div class="c-text">
- <div class="c-label">🌐 Kamera In-Browser</div>
- <div class="c-sub">Rekam langsung di halaman web ini (ada countdown &amp; floral
-frame)</div>
- </div>
- </button>
- </div>
- <button class="choice-cancel" onclick="closeChoiceSheet()">Batal</button>
- </div>
-</div>
-<!-- Native file inputs - trigger kamera bawaan HP (tidak ada zoom issue) -->
-<input type="file" id="native-video-input" accept="video/*" capture="environment">
-<input type="file" id="native-photo-input" accept="image/*" capture="environment">
-<div class="toast" id="toast"></div>
+
 <!-- ------------------------------------------------------------
      JAVASCRIPT
      ------------------------------------------------------------ -->
@@ -3588,38 +3543,7 @@ let vnDataArr = null;
 // ---- Init ----
 window.addEventListener('DOMContentLoaded', async () => {
  loadGalleryFromServer();
- // Wire native camera inputs
- document.getElementById('native-video-input').addEventListener('change', e => {
- const file = e.target.files?.[0];
- if (file) { capturedBlob = file; capturedType = 'video';
-showPlayback(URL.createObjectURL(file), 'video'); }
- e.target.value = '';
- closeChoiceSheet();
- });
- document.getElementById('native-photo-input').addEventListener('change', e => {
- const file = e.target.files?.[0];
- if (file) { capturedBlob = file; capturedType = 'photo';
-showPlayback(URL.createObjectURL(file), 'photo'); }
- e.target.value = '';
- closeChoiceSheet();
- });
 });
-// ---- Capture Choice Sheet ----
-function openCaptureChoice() {
- document.getElementById('choice-modal').classList.add('open');
- document.getElementById('fab').classList.add('open');
-}
-function closeChoiceSheet() {
- document.getElementById('choice-modal').classList.remove('open');
- document.getElementById('fab').classList.remove('open');
-}
-function handleChoiceBackdrop(e) {
- if (e.target === document.getElementById('choice-modal')) closeChoiceSheet();
-}
-function chooseInBrowser() {
- closeChoiceSheet();
- openCameraModal();
-}
 // ---- Camera Modal ----
 async function openCameraModal() {
  document.getElementById('camera-modal').classList.add('open');
@@ -4008,33 +3932,31 @@ async function loadGalleryFromServer() {
  renderGallery();
  return;
  }
-  const serverEntries = (data.entries || []).map(e => ({
-      // FIX: Gunakan timestamp sebagai ID unik — bukan indeks array yang berubah tiap load
-      id:        'srv_' + e.timestamp,
-      // Guard: tolak undefined/null/"undefined"/"null"/kosong — fallback ke 'Tamu'
-      name:      (e.name && e.name !== 'undefined' && e.name !== 'null') ? e.name : 'Tamu',
-      msg:       e.message,
-      ts:        e.timestamp,
-      localUrl:  e.video_url,
-      serverUrl: e.video_url,
-      // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
-      type:      e.media_type || 'video',
-      vnUrl:     e.vn_url || '',      // /api/vn-proxy?id=... dari server
-      vnDriveId: e.vn_drive_id || '',
-      driveId:   e.drive_id || '',
-      uploading: false,
-    }));
-
-    // Pertahankan entry local yang masih uploading, gabungkan dgn server
-    const localUploading = gallery.filter(e => e.uploading);
-    const localIds = new Set(localUploading.map(e => e.id));
-    const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
-    gallery = [...localUploading, ...srvDeduped];
-    renderGallery();
-  } catch (err) {
-    console.error('[Gallery] fetch error:', err);
-    renderGallery();
-  }
+ const serverEntries = (data.entries || []).map(e => ({
+ // FIX: Gunakan timestamp sebagai ID unik - bukan indeks array yang berubah tiap load
+ id: 'srv_' + e.timestamp,
+ name: e.name || 'Tamu',
+ msg: e.message,
+ ts: e.timestamp,
+ localUrl: e.video_url,
+ serverUrl: e.video_url,
+ // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
+ type: e.media_type || 'video',
+ vnUrl: e.vn_url || '', // /api/vn-proxy?id=... dari server
+ vnDriveId: e.vn_drive_id || '',
+ driveId: e.drive_id || '',
+ uploading: false,
+ }));
+ // Pertahankan entry local yang masih uploading, gabungkan dgn server
+ const localUploading = gallery.filter(e => e.uploading);
+ const localIds = new Set(localUploading.map(e => e.id));
+ const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
+ gallery = [...localUploading, ...srvDeduped];
+ renderGallery();
+ } catch (err) {
+ console.error('[Gallery] fetch error:', err);
+ renderGallery();
+ }
 }
 // ---- Playback modal ----
 function openPlayModal(idx) {
@@ -4042,7 +3964,7 @@ function openPlayModal(idx) {
  if (!e || e.uploading) return;
  currentVNUrl = e.vnUrl || null;
  currentEntry = e;
- document.getElementById('play-name').textContent = e.name || 'Tamu';
+ document.getElementById('play-name').textContent = e.name;
  document.getElementById('play-msg').textContent = e.msg || 'Tidak ada pesan tertulis.';
  document.getElementById('play-date').textContent = fmtDate(e.ts);
  const vid = document.getElementById('play-video');
@@ -6766,22 +6688,8 @@ function resetVNRecorder() {
 }
 // ---- Helpers ----
 function escHtml(s) {
-
-  // Cegah null, undefined, string "undefined", string "null", atau kosong
-  if (
-    s == null ||
-    s === 'undefined' ||
-    s === 'null' ||
-    String(s).trim() === ''
-  ) {
-    return 'Tamu';
-  }
-
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+ return
+String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function fmtDate(ts) {
  if (!ts) return '-';
