@@ -3737,13 +3737,45 @@ async function confirmSend() {
  }
  showToast('Tersimpan! 🎉');
  } catch (err) {
+ // FIX: fetch bisa gagal di sisi klien (koneksi putus, tab di-background,
+ // dsb) padahal di server proses upload ke Drive/Sheets sudah SELESAI dan
+ // SUKSES (Worker tetap jalan walau koneksi klien terputus). Jadi sebelum
+ // menandai gagal, cek dulu ke /api/gallery apakah entry-nya sudah ada.
+ console.warn('[Submit] fetch error, verifying via /api/gallery before marking failed:', err);
+ let verifiedOnServer = false;
+ try {
+ // Beri sedikit waktu untuk Sheets append selesai di backend
+ await new Promise(r => setTimeout(r, 1500));
+ const checkRes = await fetch('/api/gallery');
+ const checkText = await checkRes.text();
+ if (checkText && checkText.trim().startsWith('{')) {
+ const checkData = JSON.parse(checkText);
+ const entries = checkData.entries || [];
+ // Cocokkan berdasarkan nama + waktu yang berdekatan (dalam 2 menit)
+ const idTime = id; // ms epoch saat entry dibuat
+ verifiedOnServer = entries.some(e => {
+ if ((e.name || 'Tamu') !== (name || 'Tamu')) return false;
+ const t = new Date(e.timestamp).getTime();
+ return Math.abs(t - idTime) < 2 * 60 * 1000;
+ });
+ }
+ } catch (verifyErr) {
+ console.warn('[Submit] verification check failed:', verifyErr);
+ }
  const idx = gallery.findIndex(e => e.id === id);
  if (idx >= 0) {
  gallery[idx].uploading = false;
+ if (verifiedOnServer) {
+ // Ternyata sudah berhasil di server, sinkronkan ulang dari server
+ gallery[idx].uploadFailed = false;
+ showToast('Tersimpan! 🎉');
+ loadGalleryFromServer();
+ } else {
  gallery[idx].uploadFailed = true;
+ showToast('Upload gagal: ' + (err.message || 'coba lagi'), true);
+ }
  renderGallery();
  }
- showToast('Upload gagal: ' + (err.message || 'coba lagi'), true);
  }
 }
 // ---- Gallery render ----
