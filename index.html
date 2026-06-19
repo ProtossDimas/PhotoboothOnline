@@ -4042,7 +4042,7 @@ function openPlayModal(idx) {
  if (!e || e.uploading) return;
  currentVNUrl = e.vnUrl || null;
  currentEntry = e;
- document.getElementById('play-name').textContent = e.name;
+ document.getElementById('play-name').textContent = e.name || 'Tamu';
  document.getElementById('play-msg').textContent = e.msg || 'Tidak ada pesan tertulis.';
  document.getElementById('play-date').textContent = fmtDate(e.ts);
  const vid = document.getElementById('play-video');
@@ -6766,8 +6766,22 @@ function resetVNRecorder() {
 }
 // ---- Helpers ----
 function escHtml(s) {
- return
-String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  // Cegah null, undefined, string "undefined", string "null", atau kosong
+  if (
+    s == null ||
+    s === 'undefined' ||
+    s === 'null' ||
+    String(s).trim() === ''
+  ) {
+    return 'Tamu';
+  }
+
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 function fmtDate(ts) {
  if (!ts) return '-';
