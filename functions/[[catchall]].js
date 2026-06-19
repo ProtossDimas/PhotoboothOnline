@@ -141,12 +141,10 @@ async function handleGallery(env) {
         vnUrl = '';
       }
 
-      // Helper: sanitize nilai kolom sheet — tolak string "undefined"/"null"
-      const col = (v) => (v && v !== 'undefined' && v !== 'null') ? v.trim() : '';
       return {
-        timestamp:   col(r[0]) || '',
-        name:        col(r[1]) || 'Tamu',
-        message:     col(r[2]) || '',
+        timestamp:   r[0] || '',
+        name:        r[1] || 'Tamu',
+        message:     r[2] || '',
         video_url:   r[3] || '',
         vn_url:      vnUrl,
         drive_id:    r[5] || '',
