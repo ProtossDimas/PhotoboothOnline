@@ -4008,31 +4008,33 @@ async function loadGalleryFromServer() {
  renderGallery();
  return;
  }
- const serverEntries = (data.entries || []).map(e => ({
- // FIX: Gunakan timestamp sebagai ID unik - bukan indeks array yang berubah tiap load
- id: 'srv_' + e.timestamp,
- name: e.name || 'Tamu',
- msg: e.message,
- ts: e.timestamp,
- localUrl: e.video_url,
- serverUrl: e.video_url,
- // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
- type: e.media_type || 'video',
- vnUrl: e.vn_url || '', // /api/vn-proxy?id=... dari server
- vnDriveId: e.vn_drive_id || '',
- driveId: e.drive_id || '',
- uploading: false,
- }));
- // Pertahankan entry local yang masih uploading, gabungkan dgn server
- const localUploading = gallery.filter(e => e.uploading);
- const localIds = new Set(localUploading.map(e => e.id));
- const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
- gallery = [...localUploading, ...srvDeduped];
- renderGallery();
- } catch (err) {
- console.error('[Gallery] fetch error:', err);
- renderGallery();
- }
+  const serverEntries = (data.entries || []).map(e => ({
+      // FIX: Gunakan timestamp sebagai ID unik — bukan indeks array yang berubah tiap load
+      id:        'srv_' + e.timestamp,
+      // Guard: tolak undefined/null/"undefined"/"null"/kosong — fallback ke 'Tamu'
+      name:      (e.name && e.name !== 'undefined' && e.name !== 'null') ? e.name : 'Tamu',
+      msg:       e.message,
+      ts:        e.timestamp,
+      localUrl:  e.video_url,
+      serverUrl: e.video_url,
+      // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
+      type:      e.media_type || 'video',
+      vnUrl:     e.vn_url || '',      // /api/vn-proxy?id=... dari server
+      vnDriveId: e.vn_drive_id || '',
+      driveId:   e.drive_id || '',
+      uploading: false,
+    }));
+
+    // Pertahankan entry local yang masih uploading, gabungkan dgn server
+    const localUploading = gallery.filter(e => e.uploading);
+    const localIds = new Set(localUploading.map(e => e.id));
+    const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
+    gallery = [...localUploading, ...srvDeduped];
+    renderGallery();
+  } catch (err) {
+    console.error('[Gallery] fetch error:', err);
+    renderGallery();
+  }
 }
 // ---- Playback modal ----
 function openPlayModal(idx) {
