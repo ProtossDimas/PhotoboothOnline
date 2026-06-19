@@ -1681,7 +1681,8 @@ async function loadGalleryFromServer() {
     const serverEntries = (data.entries || []).map(e => ({
       // FIX: Gunakan timestamp sebagai ID unik — bukan indeks array yang berubah tiap load
       id:        'srv_' + e.timestamp,
-      name:      e.name,
+      // Guard: tolak undefined/null/"undefined"/"null"/kosong — fallback ke 'Tamu'
+      name:      (e.name && e.name !== 'undefined' && e.name !== 'null') ? e.name : 'Tamu',
       msg:       e.message,
       ts:        e.timestamp,
       localUrl:  e.video_url,
@@ -1712,7 +1713,7 @@ function openPlayModal(idx) {
   if (!e || e.uploading) return;
   currentVNUrl = e.vnUrl || null;
   currentEntry = e;
-  document.getElementById('play-name').textContent = e.name;
+  document.getElementById('play-name').textContent = e.name || 'Tamu';
   document.getElementById('play-msg').textContent  = e.msg || 'Tidak ada pesan tertulis.';
   document.getElementById('play-date').textContent = fmtDate(e.ts);
   const vid = document.getElementById('play-video');
@@ -2076,6 +2077,8 @@ function resetVNRecorder() {
 
 // ── Helpers ───────────────────────────────────────────────
 function escHtml(s) {
+  // Guard: jangan pernah tampilkan teks "undefined"/"null" ke user
+  if (s === undefined || s === null || s === 'undefined' || s === 'null' || s === '') s = 'Tamu';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function fmtDate(ts) {
