@@ -3374,15 +3374,6 @@ aenCYD0qpLks++xnoAPXh1PCbittcAaBST2HAAp1OXU2Uc8cS5tg+kc96eobIAAA"
  style="width:100%;height:100%;position:absolute;inset:0;objectfit:fill;pointer-events:none;mix-blend-mode:multiply;"
  id="camera-frame-img">
  </div>
- <div class="rec-badge" id="rec-badge"><div class="rec-dot"></div> REC</div>
- <div class="timer-ring" id="timer-ring">
- <svg viewBox="0 0 52 52"><circle class="ring-track" cx="26" cy="26" r="22"/><circle
-class="ring-fill" id="ring-fill" cx="26" cy="26" r="22" stroke-dasharray="138.2" strokedashoffset="138.2"/></svg>
- <div class="ring-num" id="ring-num">60</div>
- </div>
- <div class="countdown-overlay" id="countdown-overlay">
- <div class="countdown-num" id="countdown-num">3</div>
- </div>
  <div class="flash-overlay" id="flash-overlay"></div>
  <!-- Close button inside camera wrap -->
  <button class="camera-close" onclick="closeCameraModal()" title="Tutup">
@@ -3397,21 +3388,7 @@ x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64
 4.36A9 9 0 0 1 3.51 15"/></svg>
  </button>
- <!-- mode toggle: video / photo -->
- <div class="mode-toggle">
- <button class="mode-btn active" id="mode-video" onclick="setMode('video')">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path
-d="M15 10l4.553-2.069A1 1 0 0 1 21 8.876v6.248a1 1 0 0 1-1.447.894L15 14"/><rect x="3" y="6"
-width="12" height="12" rx="2"/></svg>
- Video
- </button>
- <button class="mode-btn" id="mode-photo" onclick="setMode('photo')">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path
-d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-<circle cx="12" cy="13" r="4"/></svg>
- Foto
- </button>
- </div>
+
  <!-- shutter -->
  <button class="btn-shutter" id="btn-shutter" onclick="handleShutter()">
  <div class="shutter-inner" id="shutter-inner"></div>
@@ -3515,16 +3492,9 @@ y2="10.49"/></svg>
 // ---- State ----
 let stream = null;
 let facingMode = 'user';
-let currentMode = 'video';
-let isRecording = false;
-let mediaRec = null;
-let videoChunks = [];
+let currentMode = 'photo';
 let capturedBlob = null;
 let capturedType = null;
-let recSecs = 0;
-let recTimer = null;
-const MAX_SECS = 60;
-const CIRC = 2 * Math.PI * 22;
 let gallery = [];
 let currentVNUrl = null;
 let currentEntry = null; // entry being viewed in play modal
@@ -3613,21 +3583,9 @@ async function flipCamera() {
 'scaleX(-1)' : 'scaleX(1)';
  await startCamera();
 }
-// ---- Mode ----
-function setMode(mode) {
- currentMode = mode;
- document.getElementById('mode-video').classList.toggle('active', mode === 'video');
- document.getElementById('mode-photo').classList.toggle('active', mode === 'photo');
- if (isRecording) stopRecording();
- retake();
-}
 // ---- Shutter ----
 function handleShutter() {
- if (currentMode === 'video') {
- isRecording ? stopRecording() : startCountdownThenRecord();
- } else {
  takePhoto();
- }
 }
 // ---- Photo ----
 function takePhoto() {
@@ -3657,65 +3615,6 @@ function takePhoto() {
  showPlayback(URL.createObjectURL(blob), 'photo');
  }, 'image/jpeg', 0.92);
 }
-// ---- Video countdown → record ----
-function startCountdownThenRecord() {
- let n = 3;
- const overlay = document.getElementById('countdown-overlay');
- const numEl = document.getElementById('countdown-num');
- overlay.classList.add('on');
- numEl.textContent = n;
- const iv = setInterval(() => {
- n--;
- if (n > 0) {
- numEl.textContent = n;
- numEl.style.animation = 'none';
- void numEl.offsetWidth;
- numEl.style.animation = '';
- } else {
- clearInterval(iv);
- overlay.classList.remove('on');
- startRecording();
- }
- }, 1000);
-}
-function startRecording() {
- if (!stream) return;
- videoChunks = [];
- recSecs = 0;
- const mime = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4']
- .find(m => MediaRecorder.isTypeSupported(m)) || '';
- mediaRec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
- mediaRec.ondataavailable = e => { if (e.data.size > 0) videoChunks.push(e.data); };
- mediaRec.onstop = () => {
- capturedBlob = new Blob(videoChunks, { type: mediaRec.mimeType || 'video/webm' });
- capturedType = 'video';
- showPlayback(URL.createObjectURL(capturedBlob), 'video');
- };
- mediaRec.start(200);
- isRecording = true;
- document.getElementById('btn-shutter').classList.add('recording');
- document.getElementById('rec-badge').classList.add('on');
- document.getElementById('timer-ring').classList.add('on');
- updateRing(0);
- recTimer = setInterval(() => {
- recSecs++;
- updateRing(recSecs);
- if (recSecs >= MAX_SECS) stopRecording();
- }, 1000);
-}
-function stopRecording() {
- clearInterval(recTimer);
- isRecording = false;
- document.getElementById('btn-shutter').classList.remove('recording');
- document.getElementById('rec-badge').classList.remove('on');
- document.getElementById('timer-ring').classList.remove('on');
- if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop();
-}
-function updateRing(s) {
- const offset = CIRC - (s / MAX_SECS) * CIRC;
- document.getElementById('ring-fill').style.strokeDashoffset = offset;
- document.getElementById('ring-num').textContent = MAX_SECS - s;
-}
 // ---- Show captured preview ----
 function showPlayback(url, type) {
  const live = document.getElementById('video-live');
@@ -3741,8 +3640,6 @@ function showPlayback(url, type) {
  }
  document.getElementById('btn-retake').classList.remove('hidden');
  document.getElementById('btn-shutter').style.display = 'none';
- document.getElementById('mode-video').disabled = true;
- document.getElementById('mode-photo').disabled = true;
  openNameModal();
 }
 // ---- Retake ----
@@ -3759,8 +3656,6 @@ function retake() {
  document.getElementById('video-live').style.display = 'block';
  document.getElementById('btn-retake').classList.add('hidden');
  document.getElementById('btn-shutter').style.display = '';
- document.getElementById('mode-video').disabled = false;
- document.getElementById('mode-photo').disabled = false;
  closeNameModal();
 }
 // ---- Name modal ----
@@ -3933,32 +3828,30 @@ async function loadGalleryFromServer() {
  return;
  }
  const serverEntries = (data.entries || []).map(e => ({
-      // FIX: Gunakan timestamp sebagai ID unik — bukan indeks array yang berubah tiap load
-      id:        'srv_' + e.timestamp,
-      // Guard: tolak undefined/null/"undefined"/"null"/kosong — fallback ke 'Tamu'
-      name:      (e.name && e.name !== 'undefined' && e.name !== 'null') ? e.name : 'Tamu',
-      msg:       e.message,
-      ts:        e.timestamp,
-      localUrl:  e.video_url,
-      serverUrl: e.video_url,
-      // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
-      type:      e.media_type || 'video',
-      vnUrl:     e.vn_url || '',      // /api/vn-proxy?id=... dari server
-      vnDriveId: e.vn_drive_id || '',
-      driveId:   e.drive_id || '',
-      uploading: false,
-    }));
-
-    // Pertahankan entry local yang masih uploading, gabungkan dgn server
-    const localUploading = gallery.filter(e => e.uploading);
-    const localIds = new Set(localUploading.map(e => e.id));
-    const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
-    gallery = [...localUploading, ...srvDeduped];
-    renderGallery();
-  } catch (err) {
-    console.error('[Gallery] fetch error:', err);
-    renderGallery();
-  }
+ // FIX: Gunakan timestamp sebagai ID unik - bukan indeks array yang berubah tiap load
+ id: 'srv_' + e.timestamp,
+ name: e.name || 'Tamu',
+ msg: e.message,
+ ts: e.timestamp,
+ localUrl: e.video_url,
+ serverUrl: e.video_url,
+ // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
+ type: e.media_type || 'video',
+ vnUrl: e.vn_url || '', // /api/vn-proxy?id=... dari server
+ vnDriveId: e.vn_drive_id || '',
+ driveId: e.drive_id || '',
+ uploading: false,
+ }));
+ // Pertahankan entry local yang masih uploading, gabungkan dgn server
+ const localUploading = gallery.filter(e => e.uploading);
+ const localIds = new Set(localUploading.map(e => e.id));
+ const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
+ gallery = [...localUploading, ...srvDeduped];
+ renderGallery();
+ } catch (err) {
+ console.error('[Gallery] fetch error:', err);
+ renderGallery();
+ }
 }
 // ---- Playback modal ----
 function openPlayModal(idx) {
@@ -3966,7 +3859,7 @@ function openPlayModal(idx) {
  if (!e || e.uploading) return;
  currentVNUrl = e.vnUrl || null;
  currentEntry = e;
- document.getElementById('play-name').textContent = e.name || 'Tamu';
+ document.getElementById('play-name').textContent = e.name;
  document.getElementById('play-msg').textContent = e.msg || 'Tidak ada pesan tertulis.';
  document.getElementById('play-date').textContent = fmtDate(e.ts);
  const vid = document.getElementById('play-video');
@@ -6690,24 +6583,9 @@ function resetVNRecorder() {
 }
 // ---- Helpers ----
 function escHtml(s) {
-
-  // Cegah null, undefined, string "undefined", string "null", atau kosong
-  if (
-    s == null ||
-    s === 'undefined' ||
-    s === 'null' ||
-    String(s).trim() === ''
-  ) {
-    return 'Tamu';
-  }
-
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+ return
+String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function fmtDate(ts) {
  if (!ts) return '-';
  return new Date(ts).toLocaleString('id-ID', { day:'numeric', month:'short',
