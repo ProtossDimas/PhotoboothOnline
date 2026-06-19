@@ -932,14 +932,14 @@ background: rgba(139,26,26,0.08); }
    ------------------------------------------------------------ */
 .music-toggle-btn {
  position: fixed;
- top: 16px;
- right: 16px;
+ bottom: 20px;
+ left: 16px;
  z-index: 500;
- width: 44px;
- height: 44px;
+ width: 48px;
+ height: 48px;
  border-radius: 50%;
  border: 1px solid var(--red-border);
- background: rgba(255,255,255,0.85);
+ background: rgba(255,255,255,0.92);
  backdrop-filter: blur(6px);
  color: var(--red-primary);
  display: flex;
@@ -3510,12 +3510,15 @@ y2="10.49"/></svg>
 <!-- BACKSOUND MUSIK -->
 <audio id="bg-music" loop preload="auto"></audio>
 <button id="music-toggle-btn" class="music-toggle-btn" aria-label="Putar/matikan musik" onclick="toggleBgMusic()">
- <svg id="music-icon-on" viewBox="0 0 24 24" fill="currentColor" style="display:none">
- <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+ <svg id="music-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+ <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"/>
+ <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+ <path d="M18.5 6a9 9 0 0 1 0 12"/>
  </svg>
- <svg id="music-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
- <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
- <line x1="3" y1="3" x2="21" y2="21"/>
+ <svg id="music-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+ <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"/>
+ <line x1="23" y1="9" x2="17" y2="15"/>
+ <line x1="17" y1="9" x2="23" y2="15"/>
  </svg>
 </button>
 <audio id="vn-audio"></audio>
@@ -6735,25 +6738,34 @@ function initBgMusic() {
  audio.addEventListener('ended', playNextBgTrack);
  }
 
- // Coba autoplay langsung
- attemptBgAutoplay();
-
- // Browser mobile biasanya blokir autoplay sebelum ada interaksi user.
- // Begitu user tap di mana saja pada halaman, baru mainkan musiknya.
- const unlockOnFirstInteraction = () => {
- if (!bgMusicUserPaused) attemptBgAutoplay();
- document.removeEventListener('click', unlockOnFirstInteraction);
- document.removeEventListener('touchstart', unlockOnFirstInteraction);
- };
- document.addEventListener('click', unlockOnFirstInteraction, { once: true });
- document.addEventListener('touchstart', unlockOnFirstInteraction, { once: true });
-}
-
-function attemptBgAutoplay() {
- const audio = document.getElementById('bg-music');
+ // TRIK AUTOPLAY: semua browser modern selalu mengizinkan audio diputar
+ // otomatis SELAMA dalam keadaan muted. Jadi musik kita mulai putar
+ // langsung dalam keadaan muted (biar benar2 "langsung terputar" begitu
+ // halaman dibuka), lalu otomatis di-unmute begitu user melakukan
+ // interaksi pertama (tap/klik di mana saja). Jadi user TIDAK perlu
+ // menekan tombol musik untuk menyalakan suara — tombol hanya dipakai
+ // kalau user mau MEMATIKAN musik.
+ audio.muted = true;
  audio.play()
  .then(() => updateMusicButtonUI(true))
- .catch(() => updateMusicButtonUI(false)); // diblokir browser, tunggu interaksi user
+ .catch(() => updateMusicButtonUI(false)); // sangat jarang terjadi, browser super strict
+
+ const unmuteOnFirstInteraction = () => {
+ if (!bgMusicUserPaused) {
+ audio.muted = false;
+ if (audio.paused) {
+ audio.play().then(() => updateMusicButtonUI(true)).catch(() => updateMusicButtonUI(false));
+ } else {
+ updateMusicButtonUI(true);
+ }
+ }
+ document.removeEventListener('click', unmuteOnFirstInteraction);
+ document.removeEventListener('touchstart', unmuteOnFirstInteraction);
+ document.removeEventListener('keydown', unmuteOnFirstInteraction);
+ };
+ document.addEventListener('click', unmuteOnFirstInteraction, { once: true });
+ document.addEventListener('touchstart', unmuteOnFirstInteraction, { once: true });
+ document.addEventListener('keydown', unmuteOnFirstInteraction, { once: true });
 }
 
 function playNextBgTrack() {
@@ -6768,6 +6780,7 @@ function toggleBgMusic() {
  const audio = document.getElementById('bg-music');
  if (audio.paused) {
  bgMusicUserPaused = false;
+ audio.muted = false;
  audio.play().then(() => updateMusicButtonUI(true)).catch(() => updateMusicButtonUI(false));
  } else {
  bgMusicUserPaused = true;
