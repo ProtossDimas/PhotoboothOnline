@@ -3933,30 +3933,32 @@ async function loadGalleryFromServer() {
  return;
  }
  const serverEntries = (data.entries || []).map(e => ({
- // FIX: Gunakan timestamp sebagai ID unik - bukan indeks array yang berubah tiap load
- id: 'srv_' + e.timestamp,
- name: e.name || 'Tamu',
- msg: e.message,
- ts: e.timestamp,
- localUrl: e.video_url,
- serverUrl: e.video_url,
- // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
- type: e.media_type || 'video',
- vnUrl: e.vn_url || '', // /api/vn-proxy?id=... dari server
- vnDriveId: e.vn_drive_id || '',
- driveId: e.drive_id || '',
- uploading: false,
- }));
- // Pertahankan entry local yang masih uploading, gabungkan dgn server
- const localUploading = gallery.filter(e => e.uploading);
- const localIds = new Set(localUploading.map(e => e.id));
- const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
- gallery = [...localUploading, ...srvDeduped];
- renderGallery();
- } catch (err) {
- console.error('[Gallery] fetch error:', err);
- renderGallery();
- }
+      // FIX: Gunakan timestamp sebagai ID unik — bukan indeks array yang berubah tiap load
+      id:        'srv_' + e.timestamp,
+      // Guard: tolak undefined/null/"undefined"/"null"/kosong — fallback ke 'Tamu'
+      name:      (e.name && e.name !== 'undefined' && e.name !== 'null') ? e.name : 'Tamu',
+      msg:       e.message,
+      ts:        e.timestamp,
+      localUrl:  e.video_url,
+      serverUrl: e.video_url,
+      // FIX: Baca media_type dari server (kolom H sheet), default 'video' utk data lama
+      type:      e.media_type || 'video',
+      vnUrl:     e.vn_url || '',      // /api/vn-proxy?id=... dari server
+      vnDriveId: e.vn_drive_id || '',
+      driveId:   e.drive_id || '',
+      uploading: false,
+    }));
+
+    // Pertahankan entry local yang masih uploading, gabungkan dgn server
+    const localUploading = gallery.filter(e => e.uploading);
+    const localIds = new Set(localUploading.map(e => e.id));
+    const srvDeduped = serverEntries.filter(e => !localIds.has(e.id));
+    gallery = [...localUploading, ...srvDeduped];
+    renderGallery();
+  } catch (err) {
+    console.error('[Gallery] fetch error:', err);
+    renderGallery();
+  }
 }
 // ---- Playback modal ----
 function openPlayModal(idx) {
@@ -3964,7 +3966,7 @@ function openPlayModal(idx) {
  if (!e || e.uploading) return;
  currentVNUrl = e.vnUrl || null;
  currentEntry = e;
- document.getElementById('play-name').textContent = e.name;
+ document.getElementById('play-name').textContent = e.name || 'Tamu';
  document.getElementById('play-msg').textContent = e.msg || 'Tidak ada pesan tertulis.';
  document.getElementById('play-date').textContent = fmtDate(e.ts);
  const vid = document.getElementById('play-video');
@@ -6688,9 +6690,24 @@ function resetVNRecorder() {
 }
 // ---- Helpers ----
 function escHtml(s) {
- return
-String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  // Cegah null, undefined, string "undefined", string "null", atau kosong
+  if (
+    s == null ||
+    s === 'undefined' ||
+    s === 'null' ||
+    String(s).trim() === ''
+  ) {
+    return 'Tamu';
+  }
+
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
+
 function fmtDate(ts) {
  if (!ts) return '-';
  return new Date(ts).toLocaleString('id-ID', { day:'numeric', month:'short',
