@@ -318,7 +318,7 @@ rgba(0,0,0,0.2); }
 #video-live {
  width: 100%;
  height: 100%;
- object-fit: contain; /* contain = tidak crop, zoom normal seperti kamera biasa */
+ object-fit: cover;
  display: block;
  transform: scaleX(-1);
 }
@@ -3652,20 +3652,20 @@ async function startCamera() {
  const constraints = {
  video: {
  facingMode,
- // Gunakan resolusi native kamera tanpa memaksa aspect ratio
- // agar tidak terjadi zoom-in (mirip kamera bawaan HP)
- width: { ideal: 1280 },
- height: { ideal: 720 },
+ width: { ideal: 720, max: 1080 },
+ height: { ideal: 1280, max: 1920 },
+ aspectRatio: { ideal: 9/16 },
  },
  audio: true,
  };
  stream = await navigator.mediaDevices.getUserMedia(constraints);
+ // ... kode zoom tetap sama ...
  document.getElementById('video-live').srcObject = stream;
  } catch (err) {
- // Fallback 1: resolusi lebih rendah
+ // Fallback 1: tanpa aspectRatio (fix OverconstrainedError)
  try {
  stream = await navigator.mediaDevices.getUserMedia({
- video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
+ video: { facingMode, width: { ideal: 720 }, height: { ideal: 1280 } },
  audio: true
  });
  document.getElementById('video-live').srcObject = stream;
@@ -4011,7 +4011,8 @@ async function loadGalleryFromServer() {
  const serverEntries = (data.entries || []).map(e => ({
  // FIX: Gunakan timestamp sebagai ID unik - bukan indeks array yang berubah tiap load
  id: 'srv_' + e.timestamp,
- name: e.name || 'Tamu',
+ // Guard: tolak string "undefined" / kosong / null — fallback ke 'Tamu'
+ name: (e.name && e.name !== 'undefined' && e.name !== 'null') ? e.name : 'Tamu',
  msg: e.message,
  ts: e.timestamp,
  localUrl: e.video_url,
@@ -6764,6 +6765,8 @@ function resetVNRecorder() {
 }
 // ---- Helpers ----
 function escHtml(s) {
+ // Guard: jangan pernah tampilkan teks "undefined"/"null" ke user
+ if (s === undefined || s === null || s === 'undefined' || s === 'null' || s === '') s = 'Tamu';
  return
 String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
